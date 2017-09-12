@@ -1,0 +1,12 @@
+---
+title: "alan"
+author: "MITCH"
+date: "9/12/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+student please do data camp

@@ -1,15 +1,19 @@
-name: "My-website"
+name: "alanarnholt.github.io"
 output_dir: "."
 navbar:
-  title: "my_page"
+  title: "Alan T. Arnholt"
   left:
-  - text: "Home"
-    href: index.html
-  - text: "bookdown"
-    href: book
-
-
-
-
-
-
+    - text: "For Students"
+      href: for-students.html
+    - text: "Resources"
+      href: resources.html
+    - text: "Teaching"
+      href: teaching.html
+    - text: "Misc. Stats"
+      href: https://alanarnholt.github.io/GeneralStatistics/
+    - text: "Software"
+      href: software.html
+    - text: "Scholarship"
+      href: scholarship.html
+    - text: "Cool Stuff"
+      href: coolstuff.html

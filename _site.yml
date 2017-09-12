@@ -6,4 +6,10 @@ navbar:
   - text: "Home"
     href: index.html
   - text: "bookdown"
-    href: bookdown.html
+    href: book
+
+
+
+
+
+

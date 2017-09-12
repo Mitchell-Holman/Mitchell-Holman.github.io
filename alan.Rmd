@@ -9,4 +9,4 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-student please do data camp
+student please do data camps

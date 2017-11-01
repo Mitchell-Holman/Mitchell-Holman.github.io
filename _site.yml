@@ -1,10 +1,10 @@
-name: "Mitchell-Holman.io"
+name: "Mitchell-Holman.github.io"
 output_dir: "."
 navbar:
   title: "Mitchell Holman"
   left:
-    - text: "For Students"
-      href: for-students.html
+    - text: "Hobs"
+      href: hobs.html
     - text: "Data Camp"
       href: alan.html
     - text: "Teaching"

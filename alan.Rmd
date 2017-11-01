@@ -1,7 +1,7 @@
 ---
-title: "alan"
-author: "MITCH"
-date: "9/12/2017"
+title: ""
+author: ""
+date: ""
 output: html_document
 ---
 
@@ -9,5 +9,16 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-student please do data camps
+
+
+
+student please do data camps.
+https://www.datacamp.com/courses/free-introduction-to-r
 https://www.datacamp.com/home
+
+
+
+```{r}
+
+```
+

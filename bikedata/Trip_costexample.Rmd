@@ -1,0 +1,64 @@
+---
+title: "Untitled"
+author: "MITCH"
+date: "10/26/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo= FALSE, include=FALSE}
+trip_cost <- trip_2 %>% mutate(cost = ifelse(usertype == "Member" & 
+    tripduration_m <= 45, 0, ifelse(usertype == "Member" & tripduration_m > 
+    45 & tripduration_m <= 75, 2, ifelse(usertype == "Member" & 
+    tripduration_m > 75, (2 + 2 * ceiling((tripduration_m - 75)/30)), 
+    ifelse(usertype == "Short-Term Pass Holder" & tripduration_m <= 
+        30, 0, ifelse(usertype == "Short-Term Pass Holder" & 
+        tripduration_m > 30 & tripduration_m < 60, 2, ifelse(usertype == 
+        "Short-Term Pass Holder" & tripduration_m > 60, (2 + 
+        5 * ceiling((tripduration_m - 60)/30)), NA)))))))
+```
+
+
+** Trip Duration**
+
+
+
+85$/year) membership
+
+
+45 min 
+
+
+
+if i have been out for 70min it will charge 
+70 min cost $2
+$2 on top of what i owe. 
+80 min costs 4 dollars. 
+110 cost $6
+
+
+
+
+
+
+
+found random code chunk in bike data sheet just putting here to make sure it doesnt get deleted.
+
+
+```{r}
+require(gridExtra)
+plot1 <- ggmap(mymap1) + geom_point(aes(x = long, y = lat), data = station_locs, 
+    alpha = 0.7, color = "darkred", size = 2)
+plot2 <- ggmap(mymap) + geom_point(aes(x = long, y = lat), data = station_locs, 
+    alpha = 0.7, color = "darkred", size = 2)
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+
+
+
+
+

@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+author: "MITCH"
+date: "9/26/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+library(readxl)
+DF <- read_excel("TMP.xlsx")
+
+```
+
+
+```{r}
+DF <- data.frame(DF)
+
+jun <- which(DF$Age_Cohort == 42898)
+DF$Age_Cohort[jun] <- "6-12"
+babies <- which(DF$Age_Cohort == "0 - 5")
+DF$Age_Cohort[babies] <- "0-5"
+str(DF)
+```
+
+
+
+```{r}
+
+library(ggplot2)
+Box <-ggplot(data = DF, aes(x = DF$Ethnicity, y = DF$Expenditures))
+Box +  geom_boxplot()
+
+mean()
+```
+
+## Computing Descriptive Statistics
+
+```{r, message = FALSE}
+library(dplyr)
+Exp <- DF %>%
+  group_by(Gender) %>%
+  summarize(ME = mean(Expenditures))
+Exp
+```
+
+```{r}
+Malexp <- DF %>%
+  subset(Gender == "Male") %>%
+  summarize(ME = mean(Expenditures))
+Malexp
+```
+
+```{r}
+Hip <- DF %>%
+  subset(Ethnicity == "Hispanic") %>%
+  summarize(ME = mean(Expenditures))
+Hip
+```
+
+
+```{r}
+DF %>%
+  subset(Age_Cohort == "22-50") %>%
+  subset(Ethnicity == "Asian") %>%
+  summarize(ME = mean(Expenditures))
+  
+```
+
+```{r}
+DF %>%
+  subset(Gender== "Male")%>%
+  subset(Ethnicity == "White not Hispanic")%>%
+  summarise((ME = mean(Expenditures)))
+```
+
+```{r}
+DF %>%
+  group_by(Ethnicity) %>%
+  summarize(ME = mean(Expenditures))
+```
+
+
+
+```{r}
+WH <- subset(DF, )
+
+
+
+
+Ha
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

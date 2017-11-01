@@ -1,0 +1,31 @@
+---
+title: "GSS2002"
+output: html_document
+author: Matt McCaseky
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+GSS2002 <- read.csv("http://www1.appstate.edu/~arnholta/Data/GSS2002.csv")
+```
+
+```{r}
+library(tidyverse)
+table(GSS2002$DeathPenalty, GSS2002$Education) %>%
+  barplot(col = c("red","blue"), legend = TRUE, main = "Death Penalty Opinion Based on Education")
+```
+
+```{r, fig.align='center'}
+library(ggplot2)
+GSS2002 %>%
+  group_by(Education, DeathPenalty) %>%
+  summarize(n()) %>% 
+  na.omit() %>%
+  ggplot(aes(x = Education, y = `n()`, fill = DeathPenalty))+ 
+  geom_bar(position = "fill", stat = "identity")+
+  scale_fill_manual(values = c(25, 99))
+```
+

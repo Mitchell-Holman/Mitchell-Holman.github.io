@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title></title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Mitchell Holman</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="hobs.html">Hobs</a>
+</li>
+<li>
+  <a href="alan.html">Data Camp</a>
+</li>
+<li class="dropdown-header">bike data</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>This is an exploration of bicycle-sharing data in the city of Seattle, WA (USA) from October 2014 - August 2016. I hope to eventually combine this data with other forms of ride-sharing and transportation in the city, but this will be the first step.</p>
+<p>Time to get started!</p>
+<div id="loading-necessary-packages" class="section level2">
+<h2><span class="header-section-number">1.1</span> Loading Necessary Packages</h2>
+<pre class="r"><code># For data manipulation and tidying
+library(dplyr)
+library(lubridate)
+library(tidyr)
+
+# For mapping
+library(ggmap)
+library(mapproj)
+library(dplyr)
+# For data visualizations
+library(ggplot2)
+library(gridExtra)
+
+# For modeling and machine learning
+library(caret)
+
+library(readr)</code></pre>
+</div>
+<div id="importing-data" class="section level2">
+<h2><span class="header-section-number">1.2</span> Importing Data</h2>
+<p>All of the data can be downloaded from the bicycle-sharing service website or from <a href="https://www.kaggle.com/pronto/cycle-share-dataset">Kaggle</a>. This project contains 3 data sets and I’ll import and inspect each data file independently.</p>
+<pre class="r"><code>station &lt;- read.csv(file = &quot;station.csv&quot;, header = TRUE, 
+    stringsAsFactors = FALSE)
+
+trip &lt;- read.csv(file = &quot;trip.csv&quot;, header = TRUE, 
+    stringsAsFactors = FALSE)
+
+weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE, 
+    stringsAsFactors = FALSE)</code></pre>
+<p>Ok, let’s take a look at each of these data files.</p>
+</div>
+<div id="data-structures-and-variables" class="section level2">
+<h2><span class="header-section-number">1.3</span> Data Structures and Variables</h2>
+<p><span class="math inline">\(\bf station\)</span></p>
+<pre class="r"><code>str(station)</code></pre>
+<pre><code>&#39;data.frame&#39;:   58 obs. of  9 variables:
+ $ station_id       : chr  &quot;BT-01&quot; &quot;BT-03&quot; &quot;BT-04&quot; &quot;BT-05&quot; ...
+ $ name             : chr  &quot;3rd Ave &amp; Broad St&quot; &quot;2nd Ave &amp; Vine St&quot; &quot;6th Ave &amp; Blanchard St&quot; &quot;2nd Ave &amp; Blanchard St&quot; ...
+ $ lat              : num  47.6 47.6 47.6 47.6 47.6 ...
+ $ long             : num  -122 -122 -122 -122 -122 ...
+ $ install_date     : chr  &quot;10/13/2014&quot; &quot;10/13/2014&quot; &quot;10/13/2014&quot; &quot;10/13/2014&quot; ...
+ $ install_dockcount: int  18 16 16 14 20 18 20 20 20 18 ...
+ $ modification_date: chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
+ $ current_dockcount: int  18 16 16 14 20 18 20 18 20 18 ...
+ $ decommission_date: chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...</code></pre>
+<p>Looks like this dataset is dealing with 9 variables:</p>
+<p><strong>Station ID :</strong> The individual ID number for a bike station</p>
+<p><strong>Name :</strong> The name of that station ID, also appears to be the rough location of the station</p>
+<p><strong>Latitude :</strong> The latitude of the station</p>
+<p><strong>Longitude :</strong> The longitude of the station</p>
+<p><strong>Install Date :</strong> When that particular station was installed (in MM/DD/YYYY format)</p>
+<p><strong>Install Dock Count :</strong> Number of docks (bike positions) available at each station on installation day</p>
+<p><strong>Modification Date :</strong> When a particular station was modified (in MM/DD/YYYY format)</p>
+<p><strong>Current Dock Count :</strong> Number of docks (bike positions) available at each station on August 31, 2016</p>
+<p><strong>Decommission Date :</strong> The date that a particular station was put out of service (in MM/DD/YYYY format)</p>
+<p><span class="math inline">\(\bf Trip\)</span></p>
+<pre><code>&#39;data.frame&#39;:   50793 obs. of  12 variables:
+ $ trip_id          : int  431 432 433 434 435 436 437 438 439 440 ...
+ $ starttime        : chr  &quot;10/13/2014 10:31&quot; &quot;10/13/2014 10:32&quot; &quot;10/13/2014 10:33&quot; &quot;10/13/2014 10:34&quot; ...
+ $ stoptime         : chr  &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; ...
+ $ bikeid           : chr  &quot;SEA00298&quot; &quot;SEA00195&quot; &quot;SEA00486&quot; &quot;SEA00333&quot; ...
+ $ tripduration     : num  986 926 884 866 924 ...
+ $ from_station_name: chr  &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; ...
+ $ to_station_name  : chr  &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; ...
+ $ from_station_id  : chr  &quot;CBD-06&quot; &quot;CBD-06&quot; &quot;CBD-06&quot; &quot;CBD-06&quot; ...
+ $ to_station_id    : chr  &quot;PS-04&quot; &quot;PS-04&quot; &quot;PS-04&quot; &quot;PS-04&quot; ...
+ $ usertype         : chr  &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; ...
+ $ gender           : chr  &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; &quot;Female&quot; ...
+ $ birthyear        : int  1960 1970 1988 1977 1971 1974 1978 1983 1974 1958 ...</code></pre>
+<p>Looks like this dataset is dealing with 9 variables:</p>
+<p><strong>Trip ID :</strong> An identification number assigned to each trip (from one bike station to another)</p>
+<p><strong>Start Time :</strong> The time and date that a bike was borrowed from a station (in MM/DD/YYYY HH:MM format)</p>
+<p><strong>Stop Time :</strong> The time and date that a bike was returned to a station (in MM/DD/YYYY HH:MM format)</p>
+<p><strong>Bike ID :</strong> The identification number for a specific bike</p>
+<p><strong>Trip Duration :</strong> Time of trip (measured in seconds)</p>
+<p><strong>From Station Name :</strong> The name of the station where the bike was borrowed from</p>
+<p><strong>To Station Name :</strong> The name of the station where the bike was returned to</p>
+<p><strong>From Station ID :</strong> The ID number of the station where the bike was borrowed from</p>
+<p><strong>To Station ID :</strong> The ID number of the station where the bike was returned to</p>
+<p><strong>User Type :</strong> Indicates whether the user was a “Member” (i.e., someone with a monthly or annual membership to Pronto!) or a “Short-Term Pass Holder” (i.e., someone who purchased a 24 hour or 3 day pass)</p>
+<p><strong>Gender :</strong> The gender of the rider (if known)</p>
+<p><strong>Birth Year :</strong> The year that the rider was born</p>
+<p><span class="math inline">\(\bf Weather\)</span></p>
+<pre class="r"><code>str(weather)</code></pre>
+<pre><code>&#39;data.frame&#39;:   689 obs. of  21 variables:
+ $ Date                      : chr  &quot;10/13/2014&quot; &quot;10/14/2014&quot; &quot;10/15/2014&quot; &quot;10/16/2014&quot; ...
+ $ Max_Temperature_F         : int  71 63 62 71 64 68 73 66 64 60 ...
+ $ Mean_Temperature_F        : int  62 59 58 61 60 64 64 60 58 58 ...
+ $ Min_TemperatureF          : int  54 55 54 52 57 59 55 55 55 57 ...
+ $ Max_Dew_Point_F           : int  55 52 53 49 55 59 57 57 52 55 ...
+ $ MeanDew_Point_F           : int  51 51 50 46 51 57 55 54 49 53 ...
+ $ Min_Dewpoint_F            : int  46 50 46 42 41 55 53 50 46 48 ...
+ $ Max_Humidity              : int  87 88 87 83 87 90 94 90 87 88 ...
+ $ Mean_Humidity             : int  68 78 77 61 72 83 74 78 70 81 ...
+ $ Min_Humidity              : int  46 63 67 36 46 68 52 67 58 67 ...
+ $ Max_Sea_Level_Pressure_In : num  30 29.8 30 30 29.8 ...
+ $ Mean_Sea_Level_Pressure_In: num  29.8 29.8 29.7 29.9 29.8 ...
+ $ Min_Sea_Level_Pressure_In : num  29.6 29.5 29.5 29.8 29.7 ...
+ $ Max_Visibility_Miles      : int  10 10 10 10 10 10 10 10 10 10 ...
+ $ Mean_Visibility_Miles     : int  10 9 9 10 10 8 10 10 10 6 ...
+ $ Min_Visibility_Miles      : int  4 3 3 10 6 2 6 5 6 2 ...
+ $ Max_Wind_Speed_MPH        : int  13 10 18 9 8 10 10 12 15 14 ...
+ $ Mean_Wind_Speed_MPH       : int  4 5 7 4 3 4 3 5 8 8 ...
+ $ Max_Gust_Speed_MPH        : chr  &quot;21&quot; &quot;17&quot; &quot;25&quot; &quot;-&quot; ...
+ $ Precipitation_In          : num  0 0.11 0.45 0 0.14 0.31 0 0.44 0.1 1.43 ...
+ $ Events                    : chr  &quot;Rain&quot; &quot;Rain&quot; &quot;Rain&quot; &quot;Rain&quot; ...</code></pre>
+<p>This dataset represents quite a bit of weather data in 21 variables.</p>
+<p><strong>Date :</strong> The date in MM/DD/YYYY format</p>
+<p><strong>Max Temperature F :</strong> The maximum temperature that day (in degrees F)</p>
+<p><strong>Mean Temperature F :</strong> The average temperature that day (in degrees F)</p>
+<p><strong>Min Temperature F :</strong> The minimum temperature that day (in degrees F)</p>
+<p><strong>Max Dew Point F :</strong> The maximum dew point (in degrees F)</p>
+<p><strong>Mean Dew Point F :</strong> The average dew point (in degrees F)</p>
+<p><strong>Min Dew Point F :</strong> The minimum dew point (in degrees F)</p>
+<p><strong>Max Humidity :</strong> The maximum humidity (in %)</p>
+<p><strong>Mean Humidity :</strong> The average humidity (in %)</p>
+<p><strong>Min Humidity :</strong> The minimum humidity (in %)</p>
+<p><strong>Maximum Sea Level Pressure :</strong> The maximum atmospheric pressure at sea level (in inches of mercury)</p>
+<p><strong>Mean Sea Level Pressure :</strong> The average atmospheric pressure at sea level (in inches of mercury)</p>
+<p><strong>Min Sea Level Pressure :</strong> The minimum atmospheric pressure at sea level (in inches of mercury)</p>
+<p><strong>Max Visibility Miles :</strong> The maximum visibility (in miles)</p>
+<p><strong>Mean Visibility Miles :</strong> The average visibility (in miles)</p>
+<p><strong>Min Visibility Miles :</strong> The minimum visibility (in miles)</p>
+<p><strong>Max Wind Speed MPH :</strong> The maximum sustained wind speed (in miles per hour)</p>
+<p><strong>Mean Wind Speed MPH :</strong> The average sustained wind speed (in miles per hour)</p>
+<p><strong>Max Gust Speed MPH :</strong> The maximum gust wind speed (in miles per hour)</p>
+<p><strong>Precipitation :</strong> The amount of precipitation (measured in inches)</p>
+<p><strong>Events :</strong> Weather events that occurred that day (e.g., rain, fog, snow, thunderstorm etc.)</p>
+</div>
+</div>
+<div id="data-visualizations" class="section level1">
+<h1><span class="header-section-number">2</span> Data Visualizations</h1>
+<div id="exploring-the-stations-dataset" class="section level2">
+<h2><span class="header-section-number">2.1</span> Exploring the Stations Dataset</h2>
+<p>Since the “Stations” dataset was the first one I imported, let’s start with a little exploration there. First of all, how many unique stations are we dealing with?</p>
+<pre class="r"><code>station %&gt;% summarise(n_distinct(station_id))</code></pre>
+<pre><code>Warning in summarise_impl(.data, dots): &#39;.Random.seed&#39; is not an integer
+vector but of type &#39;NULL&#39;, so ignored</code></pre>
+<pre><code>  n_distinct(station_id)
+1                     58</code></pre>
+<p>Wow! 58 different stations! Let’s take a quick peek at where they are located.</p>
+<pre class="r"><code>station_locs &lt;- station %&gt;% group_by(station_id) %&gt;% select(1:4,-2)
+mymap &lt;- get_map(location = &quot;Seattle&quot;, maptype = &quot;roadmap&quot;, zoom = 12)
+mymap1 &lt;- get_map(location = c(lon =-122.315 , lat = 47.63), maptype = &quot;roadmap&quot;, zoom = 13)
+ggmap(mymap) + geom_point(aes(x = long, y = lat), data = station_locs, 
+    alpha = 0.7, color = &quot;darkred&quot;, size = 2)</code></pre>
+<p><img src="bike_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>So it looks like all of the stations are located near the Lower Queen Anne, Belltown, International District, Capitol Hill and University of Washington areas. Let’s take a more zoomed-in look.</p>
+<p><img src="bike_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Great! So the locations are pretty well clustered. I wonder what order they were added in.</p>
+<pre class="r"><code>station$install_date  &lt;- mdy(station$install_date)
+
+
+station %&gt;% summarise(n_distinct(install_date))</code></pre>
+<pre><code>  n_distinct(install_date)
+1                        9</code></pre>
+<pre class="r"><code>station %&gt;% group_by(install_date) %&gt;% summarise(count = n()) %&gt;% 
+    arrange(install_date)</code></pre>
+<pre><code># A tibble: 9 x 2
+  install_date count
+        &lt;date&gt; &lt;int&gt;
+1   2014-10-13    50
+2   2015-05-22     1
+3   2015-06-12     1
+4   2015-07-27     1
+5   2015-09-15     1
+6   2015-10-29     1
+7   2016-03-18     1
+8   2016-07-03     1
+9   2016-08-09     1</code></pre>
+<p>It looks like the vast majority (86%) of the stations were added on opening day. Let’s see where those original ones were and where the rest were added.</p>
+<p>So they added more stations throughout the district that they serve, instead of adding several new stations to a single neighborhood all at once. Good to know.</p>
+<p>Now, I wonder how many bikes can be parked at each station (as of August 31,2016)?</p>
+<p>Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.</p>
+<p><span class="math inline">\(\bf Change in Number of Bike Docks Per Station\)</span></p>
+<pre class="r"><code>dock_change &lt;- station %&gt;% group_by(station_id) %&gt;% select(station_id, 
+    long, lat, ends_with(&quot;dockcount&quot;)) %&gt;% mutate(dock_change = current_dockcount - 
+    install_dockcount)
+dock_change %&gt;%
+group_by()</code></pre>
+<pre><code># A tibble: 58 x 6
+   station_id      long      lat install_dockcount current_dockcount
+        &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;             &lt;int&gt;             &lt;int&gt;
+ 1      BT-01 -122.3510 47.61842                18                18
+ 2      BT-03 -122.3486 47.61583                16                16
+ 3      BT-04 -122.3411 47.61609                16                16
+ 4      BT-05 -122.3442 47.61311                14                14
+ 5     CBD-03 -122.3324 47.61073                20                20
+ 6     CBD-04 -122.3356 47.60922                18                18
+ 7     CBD-05 -122.3358 47.60406                20                20
+ 8     CBD-06 -122.3358 47.60595                20                18
+ 9     CBD-07 -122.3304 47.60351                20                20
+10     CBD-13 -122.3396 47.61019                18                18
+# ... with 48 more rows, and 1 more variables: dock_change &lt;int&gt;</code></pre>
+<pre class="r"><code>ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(dock_change), color = factor(dock_change)), 
+                           data = dock_change, alpha = 0.8) + 
+guides(color = guide_legend(title = &quot;Change&quot;), size = guide_legend(title = &quot;Change&quot;)) + 
+scale_size_manual(values = 10:1)</code></pre>
+<p><img src="bike_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(current_dockcount), color = factor(current_dockcount)), 
+                           data = dock_change, alpha = 0.8) + 
+guides(color = guide_legend(title = &quot;Current&quot;), size = guide_legend(title = &quot;Current&quot;)) + 
+scale_size_manual(values = 1:10)</code></pre>
+<p><img src="bike_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>trip_2 &lt;- trip %&gt;% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
+
+# Recode the dates
+trip_2 &lt;- trip_2 %&gt;% mutate(start_date = paste(month(start_dt), 
+    day(start_dt), year(start_dt), sep = &quot;/&quot;))
+trip_2$start_date &lt;- mdy(trip_2$start_date)
+
+trip_2 &lt;- trip_2 %&gt;% mutate(stop_date = paste(month(stop_dt), 
+    day(stop_dt), year(stop_dt), sep = &quot;/&quot;))
+trip_2$stop_date &lt;- mdy(trip_2$stop_date)
+
+trip_2 %&gt;% 
+
+  group_by(start_date) %&gt;%
+
+  summarize(N = n()) %&gt;%
+
+  ggplot(aes(x = start_date, y = N)) + 
+
+  geom_line() + 
+
+  labs(x = &quot;Date&quot;, y = &quot;Number of trips per day&quot;) + 
+
+  theme_bw() + geom_smooth()</code></pre>
+<pre><code>`geom_smooth()` using method = &#39;loess&#39;</code></pre>
+<p><img src="bike_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>start_date_ym &lt;- trip_2 %&gt;% mutate(ym = paste(year(start_date), 
+    month(start_date), sep = &quot;/&quot;), Season = ifelse(ym %in% c(&quot;2014/10&quot;, &quot;2014/11&quot;), &quot;Fall&quot;,
+                                            ifelse(ym %in% c(&quot;2014/12&quot;,&quot;2015/1&quot;, &quot;2015/2&quot;), &quot;Winter&quot;,
+                                            ifelse(ym %in% c(&quot;2015/3&quot;, &quot;2015/4&quot;, &quot;2015/5&quot;), &quot;Spring&quot;, &quot;Summer&quot;))))</code></pre>
+<pre class="r"><code>start_date_ym %&gt;%
+  group_by(ym, Season) %&gt;%
+  summarize(N=n()) %&gt;%
+  ggplot(aes(x = ym, y = N, col = Season)) + 
+  geom_point() +
+  geom_line(group = 1) +
+  theme_bw() +
+  labs(x = &quot;Date&quot;, y = &quot;Number of Trips (per month)&quot;)</code></pre>
+<p><img src="bike_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

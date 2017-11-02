@@ -1,7 +1,8 @@
 ---
-title: "Untitled"
-author: "Mitchell Holman"
+title: ""
+author: ""
 output: bookdown::html_document2
+
 ---
 
 ```{r setup, include=FALSE}
@@ -212,12 +213,6 @@ So they added more stations throughout the district that they serve, instead of 
 
 Now, I wonder how many bikes can be parked at each station (as of August 31,2016)?
 
-
-
-
-```{r}
-5*5
-```
 
 Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.
 

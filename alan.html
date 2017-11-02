@@ -339,8 +339,6 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 <h2><span class="header-section-number">2.1</span> Exploring the Stations Dataset</h2>
 <p>Since the “Stations” dataset was the first one I imported, let’s start with a little exploration there. First of all, how many unique stations are we dealing with?</p>
 <pre class="r"><code>station %&gt;% summarise(n_distinct(station_id))</code></pre>
-<pre><code>Warning in summarise_impl(.data, dots): &#39;.Random.seed&#39; is not an integer
-vector but of type &#39;NULL&#39;, so ignored</code></pre>
 <pre><code>  n_distinct(station_id)
 1                     58</code></pre>
 <p>Wow! 58 different stations! Let’s take a quick peek at where they are located.</p>
@@ -387,6 +385,7 @@ NULL, : &#39;nclass&#39; not used when &#39;breaks&#39; is specified</code></pre
 <p><img src="alan_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.</p>
 <p><strong>Change in Number of Bike Docks Per Station</strong></p>
+<p>Any stations with no change in number of docks are not shown here.</p>
 <pre class="r"><code>dock_change &lt;- station %&gt;% group_by(station_id) %&gt;% select(station_id, 
     long, lat, ends_with(&quot;dockcount&quot;)) %&gt;% mutate(dock_change = current_dockcount - 
     install_dockcount)
@@ -407,15 +406,34 @@ group_by()</code></pre>
 10     CBD-13 -122.3396 47.61019                18                18
 # ... with 48 more rows, and 1 more variables: dock_change &lt;int&gt;</code></pre>
 <pre class="r"><code>ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(dock_change), color = factor(dock_change)), 
-                           data = dock_change, alpha = 0.8) + 
+                           data = dock_change, alpha = 0.6) + 
 guides(color = guide_legend(title = &quot;Change&quot;), size = guide_legend(title = &quot;Change&quot;)) + 
 scale_size_manual(values = 10:1)</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(current_dockcount), color = factor(current_dockcount)), 
-                           data = dock_change, alpha = 0.8) + 
-guides(color = guide_legend(title = &quot;Current&quot;), size = guide_legend(title = &quot;Current&quot;)) + 
-scale_size_manual(values = 1:10)</code></pre>
+<p><img src="alan_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /> Wow! Looks like quite a few stations took away bike docks and none gained any. Perhaps those stations weren’t being used very frequently. We’ll have to look at that a bit later.</p>
+<p><strong>Current Station Size</strong></p>
+<p>I’m going to take one quick look at the current size of each station before moving on to the next dataset. Note: I did not include any stations that were closed as of August 31, 2016 in this map</p>
 <p><img src="alan_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>So it looks like the biggest stations tend to be on the outskirts of the rest. Where there are several stations in close proximity, there tend to be fewer bike docks at each station. That makes sense, logically speaking. If you go to a station and there is no bike to rent, you can easily go to another nearby, assuming there is another nearby. In areas where the stations are more secluded, it’s more important that there be bikes and open spaces readily available for users.</p>
+<p>Alright, I’m feeling good about exploring this dataset. Time to check out the trip dataset!</p>
+</div>
+</div>
+<div id="exploring-the-trips-dataset" class="section level1">
+<h1><span class="header-section-number">3</span> Exploring the Trips Dataset</h1>
+<p>It’s been a while since we’ve looked at the trip dataset, so let’s take another peek at it here.</p>
+<pre><code>&#39;data.frame&#39;:   50793 obs. of  12 variables:
+ $ trip_id          : int  431 432 433 434 435 436 437 438 439 440 ...
+ $ starttime        : chr  &quot;10/13/2014 10:31&quot; &quot;10/13/2014 10:32&quot; &quot;10/13/2014 10:33&quot; &quot;10/13/2014 10:34&quot; ...
+ $ stoptime         : chr  &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; &quot;10/13/2014 10:48&quot; ...
+ $ bikeid           : chr  &quot;SEA00298&quot; &quot;SEA00195&quot; &quot;SEA00486&quot; &quot;SEA00333&quot; ...
+ $ tripduration     : num  986 926 884 866 924 ...
+ $ from_station_name: chr  &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; &quot;2nd Ave &amp; Spring St&quot; ...
+ $ to_station_name  : chr  &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; &quot;Occidental Park / Occidental Ave S &amp; S Washington St&quot; ...
+ $ from_station_id  : chr  &quot;CBD-06&quot; &quot;CBD-06&quot; &quot;CBD-06&quot; &quot;CBD-06&quot; ...
+ $ to_station_id    : chr  &quot;PS-04&quot; &quot;PS-04&quot; &quot;PS-04&quot; &quot;PS-04&quot; ...
+ $ usertype         : chr  &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; ...
+ $ gender           : chr  &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; &quot;Female&quot; ...
+ $ birthyear        : int  1960 1970 1988 1977 1971 1974 1978 1983 1974 1958 ...</code></pre>
+<p>Great, so there are quite a few things that we can potentially look at using this dataset by itself. Let’s start with the number of trips per day since Pronto! began opening bike stations. To do that, we need to recode our start date/times as POSIXct objects. We’ll use the <code>lubridate</code> package for this.</p>
 <pre class="r"><code>trip_2 &lt;- trip %&gt;% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
 
 # Recode the dates
@@ -440,21 +458,41 @@ trip_2 %&gt;%
   labs(x = &quot;Date&quot;, y = &quot;Number of trips per day&quot;) + 
 
   theme_bw() + geom_smooth()</code></pre>
-<pre><code>`geom_smooth()` using method = &#39;loess&#39;</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="alan_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Great! Time to visualize the number of rides per day.</p>
+<p><img src="alan_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Hmm, grouping by day is a little noisy. Perhaps we should try by month?</p>
+<div id="plotting-trips-per-month-by-season" class="section level3">
+<h3><span class="header-section-number">3.0.1</span> Plotting Trips Per Month (By Season)</h3>
+<p>First, we need to create a “Year-Month” variable</p>
 <pre class="r"><code>start_date_ym &lt;- trip_2 %&gt;% mutate(ym = paste(year(start_date), 
     month(start_date), sep = &quot;/&quot;), Season = ifelse(ym %in% c(&quot;2014/10&quot;, &quot;2014/11&quot;), &quot;Fall&quot;,
                                             ifelse(ym %in% c(&quot;2014/12&quot;,&quot;2015/1&quot;, &quot;2015/2&quot;), &quot;Winter&quot;,
                                             ifelse(ym %in% c(&quot;2015/3&quot;, &quot;2015/4&quot;, &quot;2015/5&quot;), &quot;Spring&quot;, &quot;Summer&quot;))))</code></pre>
-<pre class="r"><code>start_date_ym %&gt;%
-  group_by(ym, Season) %&gt;%
-  summarize(N=n()) %&gt;%
-  ggplot(aes(x = ym, y = N, col = Season)) + 
-  geom_point() +
-  geom_line(group = 1) +
-  theme_bw() +
-  labs(x = &quot;Date&quot;, y = &quot;Number of Trips (per month)&quot;)</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Now plot. I think I’ll plot this by month but color it by season (where December, January, and February are “winter”, March, April, and May are “spring”, June, July, August are “summer”, and September, October, November are “autumn”)</p>
+<p><img src="alan_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Well that intuitively makes sense. The number of trips taken per month increases in the spring, reaches a maximum in the summer, declines through the fall, remains fairly stable in the winter and then repeats.</p>
+</div>
+<div id="average-trip-duration" class="section level3">
+<h3><span class="header-section-number">3.0.2</span> Average Trip Duration</h3>
+<p>Great! I wonder how the average trip duration fluctuates over this time period.</p>
+<pre class="r"><code># Convert Trip Duration from Seconds to Minutes
+Trip_Duration_Month &lt;- start_date_ym %&gt;% mutate(trip_duration_min = tripduration/60) %&gt;% 
+    group_by(ym) %&gt;% select(ym, trip_duration_min) %&gt;% summarise(Avg = mean(trip_duration_min), 
+    sd = sd(trip_duration_min)) %&gt;% mutate(se = sd/sqrt(n()))</code></pre>
+<p>Now to plot the average trip duration (in minutes) (plus or minus standard error), with colors indicating season.</p>
+<pre class="r"><code>5+5</code></pre>
+<pre><code>[1] 10</code></pre>
+<p>There’s surprisingly not a huge range in trip durations here.</p>
+<p>The little bit of variation here makes logical sense. Longer trips were being taken in the spring and summer months rather than the fall and winter. It’s also notable that the spring and summer of 2016 may have shown fewer trips than the previous year, show a slight increase in average trip length.</p>
+<pre class="r"><code>trip_2$wd &lt;- wday(trip_2$start_date, label = TRUE)</code></pre>
+</div>
+<div id="number-of-trips-by-day-of-week" class="section level3">
+<h3><span class="header-section-number">3.0.3</span> Number of Trips by Day of Week</h3>
+<p>Now to plot the total number of trips by day of the week.</p>
+<p>Ok, so there are definitely more trips during the week than on the weekends. I wonder if this varies by season too.</p>
+<p><img src="alan_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>So it looks like usage is relatively consistent across seasons, at least as far as the number of trips are concerned.</p>
 </div>
 </div>
 

@@ -2,11 +2,12 @@ name: "Mitchell-Holman.github.io"
 output_dir: "."
 navbar:
   title: "Mitchell Holman"
-  left:
+  right:
     - text: "Hobs"
       href: hobs.html
     - text: "Data Camp"
       href: alan.html
     - text: "bike data"
-      herf: bike.bookdown::html_document2
-      
+      herf: bike.html
+    - text: "Bike"
+      herf: bike.html

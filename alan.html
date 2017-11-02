@@ -458,12 +458,11 @@ trip_2 %&gt;%
   labs(x = &quot;Date&quot;, y = &quot;Number of trips per day&quot;) + 
 
   theme_bw() + geom_smooth()</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Great! Time to visualize the number of rides per day.</p>
 <p><img src="alan_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Hmm, grouping by day is a little noisy. Perhaps we should try by month?</p>
-<div id="plotting-trips-per-month-by-season" class="section level3">
-<h3><span class="header-section-number">3.0.1</span> Plotting Trips Per Month (By Season)</h3>
+<div id="plotting-trips-per-month-by-season" class="section level2">
+<h2><span class="header-section-number">3.1</span> Plotting Trips Per Month (By Season)</h2>
 <p>First, we need to create a “Year-Month” variable</p>
 <pre class="r"><code>start_date_ym &lt;- trip_2 %&gt;% mutate(ym = paste(year(start_date), 
     month(start_date), sep = &quot;/&quot;), Season = ifelse(ym %in% c(&quot;2014/10&quot;, &quot;2014/11&quot;), &quot;Fall&quot;,
@@ -473,22 +472,32 @@ trip_2 %&gt;%
 <p><img src="alan_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Well that intuitively makes sense. The number of trips taken per month increases in the spring, reaches a maximum in the summer, declines through the fall, remains fairly stable in the winter and then repeats.</p>
 </div>
-<div id="average-trip-duration" class="section level3">
-<h3><span class="header-section-number">3.0.2</span> Average Trip Duration</h3>
+<div id="average-trip-duration" class="section level2">
+<h2><span class="header-section-number">3.2</span> Average Trip Duration</h2>
 <p>Great! I wonder how the average trip duration fluctuates over this time period.</p>
 <pre class="r"><code># Convert Trip Duration from Seconds to Minutes
-Trip_Duration_Month &lt;- start_date_ym %&gt;% mutate(trip_duration_min = tripduration/60) %&gt;% 
-    group_by(ym) %&gt;% select(ym, trip_duration_min) %&gt;% summarise(Avg = mean(trip_duration_min), 
-    sd = sd(trip_duration_min)) %&gt;% mutate(se = sd/sqrt(n()))</code></pre>
+Trip_Duration_Month &lt;- start_date_ym %&gt;%
+  mutate(trip_duration_min = tripduration/60) %&gt;%
+  group_by(ym) %&gt;% 
+  select(ym,trip_duration_min) %&gt;%
+  summarise(avg = mean(trip_duration_min), sd = sd(trip_duration_min)) %&gt;%
+  mutate(se = sd/sqrt(n()), Season = ifelse(ym %in% c(&quot;2014/10&quot;, &quot;2014/11&quot;), &quot;Fall&quot;,
+                                            ifelse(ym %in% c(&quot;2014/12&quot;,&quot;2015/1&quot;, &quot;2015/2&quot;), &quot;Winter&quot;,
+                                            ifelse(ym %in% c(&quot;2015/3&quot;, &quot;2015/4&quot;, &quot;2015/5&quot;), &quot;Spring&quot;, &quot;Summer&quot;))))</code></pre>
 <p>Now to plot the average trip duration (in minutes) (plus or minus standard error), with colors indicating season.</p>
-<pre class="r"><code>5+5</code></pre>
-<pre><code>[1] 10</code></pre>
+<pre class="r"><code>ggplot(Trip_Duration_Month, aes(x=ym, y=avg, col=Season)) + 
+  geom_point() + 
+  geom_line(group = 1) + 
+  geom_errorbar(aes(ymin=avg-se, ymax=avg+se)) + 
+  theme_bw() + 
+  labs(x=&quot;Date&quot;, y=&quot;Duration of Average Trip (In Minutes)&quot;)</code></pre>
+<p><img src="alan_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>There’s surprisingly not a huge range in trip durations here.</p>
 <p>The little bit of variation here makes logical sense. Longer trips were being taken in the spring and summer months rather than the fall and winter. It’s also notable that the spring and summer of 2016 may have shown fewer trips than the previous year, show a slight increase in average trip length.</p>
 <pre class="r"><code>trip_2$wd &lt;- wday(trip_2$start_date, label = TRUE)</code></pre>
 </div>
-<div id="number-of-trips-by-day-of-week" class="section level3">
-<h3><span class="header-section-number">3.0.3</span> Number of Trips by Day of Week</h3>
+<div id="number-of-trips-by-day-of-week" class="section level2">
+<h2><span class="header-section-number">3.3</span> Number of Trips by Day of Week</h2>
 <p>Now to plot the total number of trips by day of the week.</p>
 <p>Ok, so there are definitely more trips during the week than on the weekends. I wonder if this varies by season too.</p>
 <p><img src="alan_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>

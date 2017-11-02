@@ -272,7 +272,7 @@ str(trip)
 
 Great, so there are quite a few things that we can potentially look at using this dataset by itself. Let’s start with the number of trips per day since Pronto! began opening bike stations. To do that, we need to recode our start date/times as POSIXct objects. We’ll use the `lubridate` package for this.
 
-```{r, message=FALSE,echo=TRUE, results='hide'}
+```{r, message=FALSE, echo=TRUE, results='hide', fig.show = 'hide'}
 trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
 
 # Recode the dates
@@ -331,7 +331,7 @@ trip_2 %>%
 
 Hmm, grouping by day is a little noisy. Perhaps we should try by month?
 
-### Plotting Trips Per Month (By Season)
+## Plotting Trips Per Month (By Season)
 
 First, we need to create a “Year-Month” variable
 
@@ -359,22 +359,32 @@ start_date_ym %>%
 
 Well that intuitively makes sense. The number of trips taken per month increases in the spring, reaches a maximum in the summer, declines through the fall, remains fairly stable in the winter and then repeats.
 
-### Average Trip Duration
+## Average Trip Duration
 
 Great! I wonder how the average trip duration fluctuates over this time period.
 
 ```{r}
 # Convert Trip Duration from Seconds to Minutes
-Trip_Duration_Month <- start_date_ym %>% mutate(trip_duration_min = tripduration/60) %>% 
-    group_by(ym) %>% select(ym, trip_duration_min) %>% summarise(Avg = mean(trip_duration_min), 
-    sd = sd(trip_duration_min)) %>% mutate(se = sd/sqrt(n()))
+Trip_Duration_Minutes <- start_date_ym %>%
+  mutate(trip_duration_min = tripduration/60) %>%
+  group_by(ym) %>% 
+  select(ym,trip_duration_min) %>%
+  summarise(avg = mean(trip_duration_min), sd = sd(trip_duration_min)) %>%
+  mutate(se = sd/sqrt(n()), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall",
+                                            ifelse(ym %in% c("2014/12","2015/1", "2015/2"), "Winter",
+                                            ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
 
 ```
 
 Now to plot the average trip duration (in minutes) (plus or minus standard error), with colors indicating season.
 
 ```{r}
-5+5
+ggplot(Trip_Duration_Minutes, aes(x=ym, y=avg, col=Season)) + 
+  geom_point() + 
+  geom_line(group = 1) + 
+  geom_errorbar(aes(ymin=avg-se, ymax=avg+se)) + 
+  theme_bw() + 
+  labs(x="Date", y="Duration of Average Trip (In Minutes)")
 
 ```
 
@@ -391,7 +401,7 @@ trip_2$wd <- wday(trip_2$start_date, label = TRUE)
 
 ```
 
-### Number of Trips by Day of Week
+## Number of Trips by Day of Week
 
 Now to plot the total number of trips by day of the week.
 

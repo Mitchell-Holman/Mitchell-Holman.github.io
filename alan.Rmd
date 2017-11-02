@@ -57,7 +57,7 @@ Ok, let’s take a look at each of these data files.
 
 ## Data Structures and Variables
 
-$\bf station$
+**Station**
 
 ```{r}
 str(station)
@@ -84,7 +84,7 @@ Looks like this dataset is dealing with 9 variables:
 
 
 
-$\bf Trip$
+**Trip**
 ```{r, echo= FALSE}
 str(trip)
 
@@ -118,7 +118,9 @@ Looks like this dataset is dealing with 9 variables:
 
 **Birth Year :** The year that the rider was born
 
-$\bf Weather$
+
+
+**Weather**
 ```{r}
 str(weather)
 ```
@@ -214,10 +216,18 @@ So they added more stations throughout the district that they serve, instead of 
 
 Now, I wonder how many bikes can be parked at each station (as of August 31,2016)?
 
+```{r}
+hist(station$current_dockcount, breaks = "fd",
+     freq = NULL, col = "light blue",
+     main = paste("Histogram of Current Dock Count"),
+     xlab = "Number of Bikes per station",
+     axes = TRUE, plot = TRUE, labels = FALSE,
+     nclass = NULL, warn.unused = TRUE)
+```
 
 Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.
 
-$\bf Change in Number of Bike Docks Per Station$
+**Change in Number of Bike Docks Per Station**
 
 
 ```{r}

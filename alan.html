@@ -182,10 +182,8 @@ $(document).ready(function () {
   <a href="hobs.html">Hobs</a>
 </li>
 <li>
-  <a href="alan.html">Data Camp</a>
+  <a href="alan.html">Bike Project</a>
 </li>
-<li class="dropdown-header">bike data</li>
-<li class="dropdown-header">Bike</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -238,7 +236,7 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 </div>
 <div id="data-structures-and-variables" class="section level2">
 <h2><span class="header-section-number">1.3</span> Data Structures and Variables</h2>
-<p><span class="math inline">\(\bf station\)</span></p>
+<p><strong>Station</strong></p>
 <pre class="r"><code>str(station)</code></pre>
 <pre><code>&#39;data.frame&#39;:   58 obs. of  9 variables:
  $ station_id       : chr  &quot;BT-01&quot; &quot;BT-03&quot; &quot;BT-04&quot; &quot;BT-05&quot; ...
@@ -260,7 +258,7 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 <p><strong>Modification Date :</strong> When a particular station was modified (in MM/DD/YYYY format)</p>
 <p><strong>Current Dock Count :</strong> Number of docks (bike positions) available at each station on August 31, 2016</p>
 <p><strong>Decommission Date :</strong> The date that a particular station was put out of service (in MM/DD/YYYY format)</p>
-<p><span class="math inline">\(\bf Trip\)</span></p>
+<p><strong>Trip</strong></p>
 <pre><code>&#39;data.frame&#39;:   50793 obs. of  12 variables:
  $ trip_id          : int  431 432 433 434 435 436 437 438 439 440 ...
  $ starttime        : chr  &quot;10/13/2014 10:31&quot; &quot;10/13/2014 10:32&quot; &quot;10/13/2014 10:33&quot; &quot;10/13/2014 10:34&quot; ...
@@ -287,7 +285,7 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 <p><strong>User Type :</strong> Indicates whether the user was a “Member” (i.e., someone with a monthly or annual membership to Pronto!) or a “Short-Term Pass Holder” (i.e., someone who purchased a 24 hour or 3 day pass)</p>
 <p><strong>Gender :</strong> The gender of the rider (if known)</p>
 <p><strong>Birth Year :</strong> The year that the rider was born</p>
-<p><span class="math inline">\(\bf Weather\)</span></p>
+<p><strong>Weather</strong></p>
 <pre class="r"><code>str(weather)</code></pre>
 <pre><code>&#39;data.frame&#39;:   689 obs. of  21 variables:
  $ Date                      : chr  &quot;10/13/2014&quot; &quot;10/14/2014&quot; &quot;10/15/2014&quot; &quot;10/16/2014&quot; ...
@@ -341,6 +339,8 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 <h2><span class="header-section-number">2.1</span> Exploring the Stations Dataset</h2>
 <p>Since the “Stations” dataset was the first one I imported, let’s start with a little exploration there. First of all, how many unique stations are we dealing with?</p>
 <pre class="r"><code>station %&gt;% summarise(n_distinct(station_id))</code></pre>
+<pre><code>Warning in summarise_impl(.data, dots): &#39;.Random.seed&#39; is not an integer
+vector but of type &#39;NULL&#39;, so ignored</code></pre>
 <pre><code>  n_distinct(station_id)
 1                     58</code></pre>
 <p>Wow! 58 different stations! Let’s take a quick peek at where they are located.</p>
@@ -376,8 +376,17 @@ station %&gt;% summarise(n_distinct(install_date))</code></pre>
 <p>It looks like the vast majority (86%) of the stations were added on opening day. Let’s see where those original ones were and where the rest were added.</p>
 <p>So they added more stations throughout the district that they serve, instead of adding several new stations to a single neighborhood all at once. Good to know.</p>
 <p>Now, I wonder how many bikes can be parked at each station (as of August 31,2016)?</p>
+<pre class="r"><code>hist(station$current_dockcount, breaks = &quot;fd&quot;,
+     freq = NULL, col = &quot;light blue&quot;,
+     main = paste(&quot;Histogram of Current Dock Count&quot;),
+     xlab = &quot;Number of Bikes per station&quot;,
+     axes = TRUE, plot = TRUE, labels = FALSE,
+     nclass = NULL, warn.unused = TRUE)</code></pre>
+<pre><code>Warning in hist.default(station$current_dockcount, breaks = &quot;fd&quot;, freq =
+NULL, : &#39;nclass&#39; not used when &#39;breaks&#39; is specified</code></pre>
+<p><img src="alan_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.</p>
-<p><span class="math inline">\(\bf Change in Number of Bike Docks Per Station\)</span></p>
+<p><strong>Change in Number of Bike Docks Per Station</strong></p>
 <pre class="r"><code>dock_change &lt;- station %&gt;% group_by(station_id) %&gt;% select(station_id, 
     long, lat, ends_with(&quot;dockcount&quot;)) %&gt;% mutate(dock_change = current_dockcount - 
     install_dockcount)
@@ -401,12 +410,12 @@ group_by()</code></pre>
                            data = dock_change, alpha = 0.8) + 
 guides(color = guide_legend(title = &quot;Change&quot;), size = guide_legend(title = &quot;Change&quot;)) + 
 scale_size_manual(values = 10:1)</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="alan_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(current_dockcount), color = factor(current_dockcount)), 
                            data = dock_change, alpha = 0.8) + 
 guides(color = guide_legend(title = &quot;Current&quot;), size = guide_legend(title = &quot;Current&quot;)) + 
 scale_size_manual(values = 1:10)</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="alan_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>trip_2 &lt;- trip %&gt;% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
 
 # Recode the dates
@@ -432,7 +441,7 @@ trip_2 %&gt;%
 
   theme_bw() + geom_smooth()</code></pre>
 <pre><code>`geom_smooth()` using method = &#39;loess&#39;</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="alan_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>start_date_ym &lt;- trip_2 %&gt;% mutate(ym = paste(year(start_date), 
     month(start_date), sep = &quot;/&quot;), Season = ifelse(ym %in% c(&quot;2014/10&quot;, &quot;2014/11&quot;), &quot;Fall&quot;,
                                             ifelse(ym %in% c(&quot;2014/12&quot;,&quot;2015/1&quot;, &quot;2015/2&quot;), &quot;Winter&quot;,
@@ -445,7 +454,7 @@ trip_2 %&gt;%
   geom_line(group = 1) +
   theme_bw() +
   labs(x = &quot;Date&quot;, y = &quot;Number of Trips (per month)&quot;)</code></pre>
-<p><img src="alan_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="alan_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 

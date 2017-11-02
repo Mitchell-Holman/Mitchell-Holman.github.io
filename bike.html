@@ -341,8 +341,6 @@ weather &lt;- read.csv(file = &quot;weather.csv&quot;, header = TRUE,
 <h2><span class="header-section-number">2.1</span> Exploring the Stations Dataset</h2>
 <p>Since the “Stations” dataset was the first one I imported, let’s start with a little exploration there. First of all, how many unique stations are we dealing with?</p>
 <pre class="r"><code>station %&gt;% summarise(n_distinct(station_id))</code></pre>
-<pre><code>Warning in summarise_impl(.data, dots): &#39;.Random.seed&#39; is not an integer
-vector but of type &#39;NULL&#39;, so ignored</code></pre>
 <pre><code>  n_distinct(station_id)
 1                     58</code></pre>
 <p>Wow! 58 different stations! Let’s take a quick peek at where they are located.</p>

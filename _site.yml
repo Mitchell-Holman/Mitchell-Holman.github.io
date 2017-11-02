@@ -5,9 +5,5 @@ navbar:
   right:
     - text: "Hobs"
       href: hobs.html
-    - text: "Data Camp"
+    - text: "Bike Project"
       href: alan.html
-    - text: "bike data"
-      herf: bike.html
-    - text: "Bike"
-      herf: bike.html

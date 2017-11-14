@@ -2,8 +2,22 @@ name: "Mitchell-Holman.github.io"
 output_dir: "."
 navbar:
   title: "Mitchell Holman"
-  right:
-    - text: "Hobs"
-      href: hobs.html
+  left:
     - text: "Bike Project"
       href: alan.html
+    - text: "Hobbies"
+      href: hobs.html
+
+    
+  right:
+    - text: ""
+      icon: glyphicon-info-sign
+      href: about.html
+    - icon: fa-github fa-lg
+      href: https://github.com/Mitchell-Holman/Mitchell-Holman.github.io 
+    
+
+output:
+  html_document:
+    theme: yeti
+      

@@ -1,12 +1,23 @@
 ---
-title: "Hobs"
-author: "MITCH"
-date: "9/12/2017"
-output: html_document
+output:
+  html_document:
+    theme: yeti
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-my hobs are baSEBALL
+Baseaball
+
+```{r}
+library(knitr)
+knitr::include_graphics("./img/base.jpg")
+```
+
+Fishing 
+```{r}
+knitr::include_graphics("./img/IMG_6420.JPG")
+```
+
+
 

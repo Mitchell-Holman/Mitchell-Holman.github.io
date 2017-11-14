@@ -1,15 +1,15 @@
 ---
-title: ""
-author: ""
-date: ""
-output: bookdown::html_document2
-
+output: 
+  bookdown::html_document2:
+    theme: yeti
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,comment = NA,fig.align = "center")
 library(readr)
 ```
+
 # Introduction
 
 This is an exploration of bicycle-sharing data in the city of Seattle, WA (USA) from October 2014 - August 2016. I hope to eventually combine this data with other forms of ride-sharing and transportation in the city, but this will be the first step.
@@ -426,4 +426,77 @@ start_date_ym %>%
 
 
 So it looks like usage is relatively consistent across seasons, at least as far as the number of trips are concerned.
+
+
+## Number of Trips by Time of Day
+
+
+How about time of day? Are people using these around commuting times during the week and later on weekends? 
+
+```{r}
+
+
+
+
+
+
+```
+
+
+
+Wow, looks like regardless of the season, people are commuting to/from work using this service (there’s a spike between 8 and 10 AM and another between 4 and 7 PM Monday through Friday). But the weekends seem to be popular between 10 AM and 10 PM.
+
+## Number of Trips by Member Type
+
+I wonder if different types of members (those who have a membership vs. those that bought a 24 hour or 3 day pass) vary in the number of trips they take.
+
+If I were to guess, I’d think the short-term passes would be ideal for tourists or people looking for a quick weekend trip, whereas members may be more likely to continue using the service year-round. Let’s check out my assumptions by plotting, once again colored by season.
+
+
+```{r}
+
+
+
+
+```
+
+
+Surprisingly (to me, at least), different types of users seem to follow similar patterns of usage. Spring and Summer are definitely the most popular times for anyone to ride a bike in the Seattle area.
+
+
+## Trip Duration by Member Type
+
+While it may seem that the trip duration shouldn’t vary widely by member type, a quick look at Pronto!’s pricing structure may make you reconsider that assumption. You see, while you have to purchase either an annual membership (\$85/year), a 24-Hour Pass (\$8) or a 3-Day Pass (16) there is still a cap on the duration of your trip. For members, any ride under 45 minutes is free, but any ride going over 45 minutes will incur a fee of 2 for every additional 30 minutes. For short-term users, any ride under 30 minutes is free, but going over that time limit would cost you an additional 2 for the first 30 minutes and 5 for each additional 30 minutes after that!
+
+Let’s see if these time limits cause differing behaviors in our users.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

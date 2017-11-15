@@ -15,4 +15,4 @@ library(knitr)
 knitr::include_graphics("./img/base.jpg")
 ```
 
-I am a senior at Applachian State Univeriity studing statistics. I am a relief pitcher for the Club Baseball team. I throw submarine and my faseball hits 80 mph. I also throw many pitches including a slider and a Knuckllball
+I am a senior at Appalachian State University studying statistics. I am a relief pitcher for the Club Baseball team. I throw submarine and my fastball hits 80 mph. I also throw many pitches including a slider and a Knuckllball

@@ -9,15 +9,66 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 Baseaball
 
-```{r}
+```{r, echo=FALSE}
 library(knitr)
 knitr::include_graphics("./img/base.jpg")
 ```
 
 Fishing 
-```{r}
+```{r, echo=FALSE}
 knitr::include_graphics("./img/IMG_6420.JPG")
 ```
+
+Cooking
+```{r, echo=FALSE}
+knitr::include_graphics("./img/cooking.jpg")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -5,13 +5,25 @@ date: '`r format(Sys.time(), "%B %d, %Y")`'
 output: 
   bookdown::html_document2:
     theme: yeti
+bibliography: packages.bib
 ---
+
+
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,comment = NA,fig.align = "center")
 library(readr)
 ```
+```{r, echo = FALSE, results = "hide"}
+PackagesUsed <- c("ggplot2", "bookdown")
+# Write bib information
+knitr::write_bib(PackagesUsed, file = "./packages.bib")
+# Load packages
+lapply(PackagesUsed, library, character.only = TRUE)
+```
+
+This project uses packages `ggplot2` @R-ggplot2, `dplyr` @R-dplyr, `tidyr` @R-tidyr
 
 # Introduction
 
@@ -45,7 +57,7 @@ library(readr)
 
 All of the data can be downloaded from the bicycle-sharing service website or from [Kaggle](https://www.kaggle.com/pronto/cycle-share-dataset). This project contains 3 data sets and I’ll import and inspect each data file independently.
 
-```{r data_read_in, warning=FALSE}
+```{r Loading Necessary Packages, warning=FALSE}
 station <- read.csv(file = "station.csv", header = TRUE, 
     stringsAsFactors = FALSE)
 
@@ -574,7 +586,7 @@ The same problem would arise if we looked at gender, so I’m just going to move
 
 
 
-
+## References
 
 
 

@@ -232,7 +232,7 @@ start_date_ym <- trip_2 %>% mutate(ym = paste(year(start_date),
 <!--chapter:end:bike.Rmd-->
 
 
-```
+
 
 
 

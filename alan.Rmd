@@ -433,8 +433,17 @@ So it looks like usage is relatively consistent across seasons, at least as far 
 
 How about time of day? Are people using these around commuting times during the week and later on weekends? 
 
-```{r}
-
+```{r, echo=FALSE}
+start_date_ym %>%
+  group_by(Hour = hour(start_dt), Season, wd) %>%
+  summarize(N=n()) %>%
+  ggplot(aes(x = Hour, y = N , color = Season, group = Season))+
+  geom_point()+
+  geom_line()+
+  geom_line()+
+  theme_bw()+
+  labs(x= "Hour of Day", y = "Number of Trips")+
+  facet_wrap(~ wd, ncol = 2)
 
 
 
@@ -454,7 +463,15 @@ If I were to guess, I’d think the short-term passes would be ideal for tourist
 
 
 ```{r}
-
+start_date_ym %>%
+  filter(usertype != "") %>%
+  group_by(ym , Season, usertype) %>%
+  summarize(N = n()) %>%
+  ggplot(aes(x=ym, y = N, color = Season, group = usertype))+
+  geom_point(aes(shape = usertype, size = 2)) +
+  geom_line()+
+  theme_bw()+
+  labs(x ="Date", y = "Total Number of Trips per Month")
 
 
 
@@ -471,20 +488,86 @@ While it may seem that the trip duration shouldn’t vary widely by member type,
 Let’s see if these time limits cause differing behaviors in our users.
 
 
+```{r}
+
+start_date_ym %>%
+  filter(usertype != "") %>%
+  group_by(tripduration, trip_id, usertype) %>%
+  summarize(N=n()) %>%
+  ggplot(aes(x= tripduration/60, fill= usertype, color = usertype), group = usertype) + 
+    geom_histogram(binwidth = 2) +
+    xlim(0,60) +
+    facet_grid(. ~ usertype) +
+    labs(x="Trip Duration (minutes)", y = "Number of trips") +
+    geom_vline(xintercept = 45, linetype = "dashed")
+    
+```
+
+
+Ok, so our members are pretty good about making sure that they return their bike before they incur extra charges, but the short-term pass holders frequently go over their time limit. I wonder how the cost of a trip varies for members and pass holders. Let’s try to calculate the cost of a trip.
+
+
+
+```{r, message=FALSE, fig.show='hide'}
+ 
+
+start_date_ym <- start_date_ym %>% mutate(cost = ifelse(usertype == "Member" & 
+    tripduration/60 <= 45, 0, ifelse(usertype == "Member" & tripduration/60 > 
+    45 & tripduration/60 <= 75, 2, ifelse(usertype == "Member" & 
+    tripduration/60 > 75, (2 + 2 * ceiling((tripduration/60 - 75)/30)), 
+    ifelse(usertype == "Short-Term Pass Holder" & tripduration/60 <= 
+        30, 0, ifelse(usertype == "Short-Term Pass Holder" & 
+        tripduration/60 > 30 & tripduration/60 < 60, 2, ifelse(usertype == 
+        "Short-Term Pass Holder" & tripduration/60 > 60, (2 + 
+        5 * ceiling((tripduration/60 - 60)/30)), NA)))))))
+
+
+
+```
+
+
+That was a complicated nested if/else statement! Let’s see how much these folks are paying in additional fees!
+
+```{r, echo=FALSE}
+
+start_date_ym %>%
+  filter(usertype != "") %>%
+  filter(cost > 0) %>%
+  ggplot(aes(x = cost, fill = usertype)) +
+    geom_histogram(binwidth = .5) +
+    facet_grid(.~ usertype) +
+    scale_fill_manual( values = c("pink", "lightblue")) +
+    xlim(0,20)+
+    guides(fill = F) 
+
+```
+
+Looks like short-term pass holders (who are already paying a higher price per day of biking), are also paying lots of extra fees. This could be because they are unfamiliar with the pricing structure and don’t realize they need to return their bike to a station within 30 minutes without getting charged. It is also possible that short-term users may be tourists who don’t know their way around as easily, and thus can’t find their way to a station within the time limit.
 
 
 
 
+## Member Demographics
+
+
+We only seem to have age and gender information about people who have an annual Pronto! membership, so we can at least take a look at what types of people use this service.
+
+Let’s look first at age.
+
+
+```{r}
+trip_2$usertype <- as.factor(trip_2$usertype)
+trip_age <- trip_2 %>% mutate(age = year(start_dt) - birthyear)
+
+hist(trip_age$age, main = "Member Age", xlab = "Number of Riders", 
+    col = "#56B4E9", breaks = 25)
+```
 
 
 
+My first instinct here is to say “Wow! There’s a lot of 20 and 30-somethings that use this service!” But this figure (and these data) may be a little misleading. You see, we don’t have any sort of Rider ID number, meaning we can’t take “individual activity level” into account. So we can’t tell if the tallest spike is because 5 very athletic 28-year-olds went on 4,000 trips each, or if 100 people went on 200 trips each, or if there were 20,000 28-year-olds who each only used the service once.
 
-
-
-
-
-
-
+The same problem would arise if we looked at gender, so I’m just going to move beyond demographics.
 
 
 

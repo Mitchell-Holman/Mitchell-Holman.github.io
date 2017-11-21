@@ -1,0 +1,126 @@
+---
+title: "lab7"
+author: "Mitch Holmann, Tucker Southern, Matt McCaskey"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.	Generate an approximate AR(1) process y_t with 0 mean and constant variance by first randomly generating the white noise ε_t for t=1,2,3, …,100 then using a truncated version of the MA representation of an AR(1) process for some value of ϕ, where -1< ϕ<1.  Specify the ϕ value you used.  Attach and describe the time series plot.
+
+```{r}
+set.seed(42)
+t <- 1:100
+et <- rnorm(t, 0, 1)
+```
+
+```{r}
+phi <- 0.4
+y <- c()
+k <- 1:length(et)
+for (i in k){
+  y[i] <- et[i] + et[i-1]*phi + et[i-2]*phi^2 + et[i-3]*phi^3 + et[i-4]*phi^4 + et[i-5]*phi^5
+    }
+yt <- y[6:100]
+plot.ts(yt)
+```
+
+
+2.	Attach and describe the sample ACF and the sample partial ACF of the time series.  
+```{r}
+ayt <- acf(yt,95)
+pacf(yt,95)
+```
+Because the data was generated using an AR(1) process it makes sense that the ACF shows more of a pattern than the partial ACF. Each value was calculated using the previous 5 values and the partial ACF ignores the effect of the intermediate values between the lags.
+
+3.	Do the plots in #2 appear consistent with an AR process?  Explain.
+Yes they do, the correlation increases and decreases about every 5 values because each value was calcuated using the previous 5 values.
+
+
+
+4.	Using the ϕ value in #1, calculate the theoretical lag k autocorrelation of y_t  for k =1,2,3 if  y_t=〖ϕy〗_(t-1)+ε_t. 
+
+```{r}
+rho1 <- phi^1
+print(rho1)
+rho2 <- phi^2
+print(rho2)
+rho3 <- phi^3
+print(rho3)
+```
+
+
+
+5.	Compare the values in #4 with the corresponding values of the sample autocorrelation.  
+
+```{r}
+ayt[1:3]
+```
+The values of the theoretical autocorrelation are fairly close to the values shown in the acf plot.
+
+
+6.	Investigate and discuss the effects of changing the value of the parameter ϕ of the AR(1) process on the theoretical Var(y_t) and Cov(y_t,y_(t+1) ).  
+
+
+Given that $\sigma^2$ is the variance of $e_t$...
+\begin{equation}
+Var(y_t) = \frac{\sigma^2}{1-\phi^2} 
+\end{equation}\
+\begin{equation}
+Cov(y_t, y_{t+1}) = \frac{\phi \sigma^2}{1-\phi^2}
+\end{equation}
+
+Based on these functions, we can see that the theoretical Variance and Covariance will increase as $\phi$ gets closer to 1. At $\phi = 0$, $Var(y_t) = \sigma^2$ and $Cov(y_t, y_{t+1}) = 0$. As $\phi$ approaches -1, the Variance will increase, and the Covariance will be a negative value.
+
+
+7.	Are these effects in #6 reflected on the sample ACF?  Discuss.
+
+This is reflected in the sample acf. When $\phi = 0$, the early lags are close to 0 as predicted. At values close to 1 and -1, the variance is indeed higher, and the covariances behave as expected as well.
+
+
+8.	Fit an AR(1) model to the time series y_t  generated in #1.  What are the estimates of the model parameters? Is this model appropriate for the data?  Explain.
+
+```{r}
+AR1 <- arima(yt,c(1,0,0))
+AR1$coef
+```
+The model gives a close estimate of the mean at `r AR1$coef[2]`, and $\phi$ at `r AR1$coef[1]`. The actual values for the mean and $\phi$ are 0.0 and 0.4 respectively.
+
+9.	Obtain and discuss the sample ACF and sample partial ACF of the residuals after fitting the model. 
+
+```{r}
+xt <- AR1$residuals
+acf(xt,95)
+pacf(xt,95)
+```
+The Acf and Pacf plot for the residuals lack the seasonal trend that was present in the original acf anf pacf plots. Significant serial correlation is no longer present in the lags k = 1,2,3. Higher lags remain insignificant, as they were before.  
+
+10.	Fit an MA(1) model to the time series y_t  generated in #1.  What are the estimates of the model parameters?   Is this an appropriate model for the data? Explain.
+
+
+```{r}
+theta1 <- .4
+ma_y <- c()
+for (i in k){
+  ma_y[i] <- yt[i] - yt[i-1]*theta1
+    }
+ma_yt <- ma_y[2:95]
+```
+
+
+```{r}
+plot.ts(yt[2:95])
+lines(ma_yt[1:94], col = "red")
+plot(yt[1:94], ma_yt)
+
+residuals <- yt[2:94] - ma_yt[1:93]
+mean(residuals)
+var(residuals)
+```
+
+ Based on the plot of $y_t$ and the MA of $y_t$, the MA(1) closely fits the data. This makes sense because the MA(1) process is derived from the data itself. The residuals taken from the data and the MA(1) show a mean of 0, and variance close to 0.2 meaning that the MA(1) is close to the original. The process was done with a $\theta$ value of 0.4. 
+
+
+

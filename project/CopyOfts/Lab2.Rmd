@@ -1,0 +1,109 @@
+---
+title: "Lab 2 "
+output: html_document
+author: "Matthew McCaskey Mitchell Holman Tucker Southern"
+---
+
+Start R Studio and create an R Markdown document that contains the following: 
+1.	The R codes for randomly generating and displaying the plot of a monthly time series yt from January 2000 to December 2010 that is stationary with a mean and constant variance that are both around 100.  Verify that the mean and variance of the generated time series are really around 100.
+```{r}
+)
+```
+
+2.	The R codes for plotting yt vs. yt-1.  Does this plot indicate autocorrelation in the time series yt? Explain. 
+```{r}
+y1 <- yt[2:132]
+y2 <- yt[1:131]
+plot(y1,y2)
+#No Autocorrelation as there is no relationship between the points on the scatterplot
+```
+**No Autocorrelation as there is no relationship between the points on the scatterplot**
+
+3.	Modify the time series yt so that it will exhibit an atypical event around December 2005. 
+Display the time series showing the presence of atypical event.
+```{r}
+y1 <- yt[1:71]
+y2 <- 250
+y3<- yt[73:132]
+yts <- c(y1,y2,y3)
+plot.ts(yts)
+```
+
+4.	The R codes for randomly generating and displaying the plot of a quarterly time series xt from March 2000 to December 2010 that has an overall decreasing trend at a rate of around 10 per quarter, has a starting value around 5000 and has a variance around 100.  Verify that the rate of decrease is around 10 per quarter by randomly selecting any two points in the time series and then computing the slope of the line segment connecting the two points.
+```{r}
+xt <- rnorm(43,5000,10)
+t <- 1:43
+xts <- xt - 10*t
+plot.ts(xts)
+
+(xts[10] - xts[20])/10   
+```
+
+5.	 The R codes for plotting xt vs. xt-1.  Does this plot indicate autocorrelation in the time series xt? Explain.  
+```{r}
+x1 <- xts[2:43]
+x2 <- xts[1:42]
+plot(x1,x2)
+
+#The scatterplot shows a positive autocorrelation, as the points on the scatterplot are positively correlated
+```
+**The scatterplot shows a positive autocorrelation, as the points on the scatterplot are positively correlated**
+
+6.	The R codes that will obtain and display the detrended version of xt using the method of differencing.
+```{r}
+xtd <- x1-x2
+plot(xtd)
+
+```
+
+7.	The R codes for randomly generating and displaying the plot of a nonstationary daily time series wt from January 2000 to December 2000 whose mean and variance decrease with time.  How much bigger is the mean in January compared to the mean in December?  How much bigger is the variance in January compared to December?
+```{r}
+t <- 1:365
+wt <- rnorm(t, 30 - 2*t/36.5, 10 - t/36.5)
+plot.ts(wt)
+Jan <- wt[1:31]
+Dec <- wt[335:365]
+meanJan <- mean(Jan)
+meanJan
+varJan <- (sd(Jan))^2
+varJan
+meanDec <- mean(Dec)
+meanDec
+varDec <- (sd(Dec))^2
+varDec
+```
+**The mean for January was `r meanJan - meanDec` bigger than the mean for December. The variance for January was `r varJan - varDec` bigger than in December.**
+
+
+
+
+8.	The R codes for plotting wt vs. wt-1.  Does this plot indicate autocorrelation in the time series wt? Explain. 
+```{r}
+w1 <- wt[2:365]
+w2 <- wt[1:364]
+plot(w1,w2)
+#The point do not appear to be related, meaning the time series is not autocorrelated
+```
+**The point do not appear to be related, meaning the time series is not autocorrelated**
+
+9.	 The R codes for randomly generating and displaying the plot of a monthly time series zt from January 2000 to December 2010 with mean and variance both around 100 and with semi-annual seasonality.
+```{r}
+t <- 1:132
+zt <- rnorm(132,100,10)
+zts <- ts(zt + (zt/2)*(abs(sin((t*pi)/6))) , frequency = 12, start = c(2000,1))
+plot.ts(zts)
+
+```
+
+10.	The R codes for plotting zt vs. zt-1.  Does this plot indicate autocorrelation in the time series zt? Explain
+```{r}
+zt1 <- zts[2:132]
+zt2 <- zts[1:131]
+plot(zt1,zt2)
+```
+
+
+
+
+**There is no indication of autocorrelation in time series**
+

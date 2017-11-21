@@ -1,0 +1,99 @@
+---
+title: "Lab3"
+author: "Matthew McCaskey, Mitchell Holman, Tucker Southern"
+date: "9/7/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+1.	Create  and describe the time series plot of the ‘Trade.csv‘ data located at the Data Sets folder in AsULearn.  This data set contains monthly employment data (number of people employed) in trade industries in one city. Call this data Yt.
+```{r cars}
+library(readr)
+Y <- read.csv("/home/students/holmanma/TS/Time_S/ts/Trade.csv")
+Y
+yt <- ts(Y)
+plot.ts(yt)
+```
+**The time series shows an overall increasing trend with seasonality.**
+
+2.	Fit a simple linear regression trend model to the trade data.  Interpret the estimates of the intercept and slope in context. 
+```{r}
+t <- 1:60
+mod1 <- lm(yt ~ t)
+summary(mod1)
+
+```
+
+
+3.	Is there a statistically significant evidence to reject the null hypothesis that the slope of the model is 0?  Explain.
+**There is evidence that suggests we should reject the null hypothesis as the p-value of the model is nearly 0,** 
+**well below the .05 threshold.**
+
+4.	Obtain the de-trended trade data then create and describe the time series plot of the de-trended trade data.   (Hint: the de-trended data are the residuals after fitting the simple linear regression model in #2).   Call the de-trended data Dt.  Is Dt a white noise?  Justify by attaching and discussing its correlogram.
+```{r}
+res <- mod1$residuals
+Dt <- ts(res)
+plot.ts(Dt)
+acf(Dt)
+```
+**Dt is not white noise because it still shows seasonality. The correlogram shows that there are regular spikes in correlation.**
+
+5.	What value of k will remove the seasonality of the de-trended trade data Dt using lag k differencing?  Apply this differencing then attach and describe the time series plot of the differenced data.   Call this differenced data Ft.  Does differencing remove the seasonality in the data?
+```{r}
+Ft <- diff(Dt, lag = 12)
+plot(Ft)
+acf(Ft)
+```
+**differencing does effectively remove the seasonality from the data**
+
+6.	Fit a trigonometric regression seasonal model to the de-trended trade data Dt and obtain the residuals.   Create and describe the time series plot of the residuals (which can also be called seasonally adjusted de-trended data).  Call this seasonally adjusted de-trended data St. Is St a white noise?  Justify by attaching and discussing its correlogram.
+```{r}
+X1 <- sin(2*pi*t/12)
+X2 <- cos(2*pi*t/12)
+mod3 <- lm(Dt ~ X1 + X2)
+rres6 <- mod3$residuals
+
+St <- ts(rres6)
+plot.ts(St)
+acf(St)
+```
+**St is not white noise because the residuals still display seasonality**
+
+
+7.	What are the estimates of the beta parameters of the trigonometric seasonal regression model in #6?  Which beta coefficient(s) is/are significant?
+```{r}
+summary(mod3)
+```
+**`r mod3$coefficients` The sin coefficient is significant while the cos coefficient is not**
+
+8.	Discuss the result of the F-test from fitting the trigonometric seasonal regression model.  Is the model significant?  
+**we can see the F-test from the summary of mod3 gives the F-stat *16.64* and the model is significant because the p-value is *2.03e-06*.**
+ 
+
+
+
+9.	Discuss how well the trigonometric seasonal regression model fit the de-trended trade data.  
+**It is significant because the p-value of the F statistic is below the .05 threshold.**
+
+10.	Forecast the number of employed individuals for month 61 by first using the trigonometric seasonal regression model in #6 and then using the linear regression model in #2. (Hint: Forecast D61 first then use appropriate back-transformations to get Y61)
+
+```{r}
+library(forecast)
+Linear <- 313.9887+(1.16485*61)
+forecast(Dt)
+Residual <- 12.11993
+
+Prediction <- Linear + Residual
+Prediction
+
+```
+
+#residual prediction + linear prediction = prediciton of the actual value
+
+Upload the resulting .html document in AsULearn by midnight on Tuesday, Sep. 12, 2017 with the last names of your group members as part of the file name.  Upload only one document for your group. 
+
+

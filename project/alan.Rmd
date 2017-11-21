@@ -1,0 +1,588 @@
+---
+title: "Bike Data"
+author: "Mitchell Holman"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output: 
+  bookdown::html_document2:
+    theme: yeti
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,comment = NA,fig.align = "center")
+library(readr)
+```
+
+# Introduction
+
+This is an exploration of bicycle-sharing data in the city of Seattle, WA (USA) from October 2014 - August 2016. I hope to eventually combine this data with other forms of ride-sharing and transportation in the city, but this will be the first step.
+
+Time to get started!
+
+## Loading Necessary Packages
+```{r, message=FALSE}
+# For data manipulation and tidying
+library(dplyr)
+library(lubridate)
+library(tidyr)
+
+# For mapping
+library(ggmap)
+library(mapproj)
+library(dplyr)
+# For data visualizations
+library(ggplot2)
+library(gridExtra)
+
+# For modeling and machine learning
+library(caret)
+
+library(readr)
+```
+
+
+## Importing Data
+
+All of the data can be downloaded from the bicycle-sharing service website or from [Kaggle](https://www.kaggle.com/pronto/cycle-share-dataset). This project contains 3 data sets and I’ll import and inspect each data file independently.
+
+```{r data_read_in, warning=FALSE}
+station <- read.csv(file = "station.csv", header = TRUE, 
+    stringsAsFactors = FALSE)
+
+trip <- read.csv(file = "trip.csv", header = TRUE, 
+    stringsAsFactors = FALSE)
+
+weather <- read.csv(file = "weather.csv", header = TRUE, 
+    stringsAsFactors = FALSE)
+```
+Ok, let’s take a look at each of these data files.
+
+
+## Data Structures and Variables
+
+**Station**
+
+```{r station_str}
+str(station)
+```
+Looks like this dataset is dealing with 9 variables:
+
+**Station ID :** The individual ID number for a bike station
+
+**Name :** The name of that station ID, also appears to be the rough location of the station
+
+**Latitude :** The latitude of the station
+
+**Longitude :** The longitude of the station
+
+**Install Date :** When that particular station was installed (in MM/DD/YYYY format)
+
+**Install Dock Count :** Number of docks (bike positions) available at each station on installation day
+
+**Modification Date :** When a particular station was modified (in MM/DD/YYYY format)
+
+**Current Dock Count :** Number of docks (bike positions) available at each station on August 31, 2016
+
+**Decommission Date :** The date that a particular station was put out of service (in MM/DD/YYYY format)
+
+
+
+**Trip**
+```{r trip_str, echo= FALSE}
+str(trip)
+
+
+
+```
+
+Looks like this dataset is dealing with 9 variables:
+
+**Trip ID :** An identification number assigned to each trip (from one bike station to another)
+
+**Start Time :** The time and date that a bike was borrowed from a station (in MM/DD/YYYY HH:MM format)
+
+**Stop Time :** The time and date that a bike was returned to a station (in MM/DD/YYYY HH:MM format)
+
+**Bike ID :** The identification number for a specific bike
+
+**Trip Duration :** Time of trip (measured in seconds)
+
+**From Station Name :** The name of the station where the bike was borrowed from
+
+**To Station Name :** The name of the station where the bike was returned to
+
+**From Station ID :** The ID number of the station where the bike was borrowed from
+
+**To Station ID :** The ID number of the station where the bike was returned to
+
+**User Type :** Indicates whether the user was a “Member” (i.e., someone with a monthly or annual membership to Pronto!) or a “Short-Term Pass Holder” (i.e., someone who purchased a 24 hour or 3 day pass)
+
+**Gender :** The gender of the rider (if known)
+
+**Birth Year :** The year that the rider was born
+
+
+
+**Weather**
+```{r weather_str}
+str(weather)
+```
+This dataset represents quite a bit of weather data in 21 variables.
+
+**Date :** The date in MM/DD/YYYY format
+
+**Max Temperature F :** The maximum temperature that day (in degrees F)
+
+**Mean Temperature F :** The average temperature that day (in degrees F)
+
+**Min Temperature F :** The minimum temperature that day (in degrees F)
+
+**Max Dew Point F :** The maximum dew point (in degrees F)
+
+**Mean Dew Point F :** The average dew point (in degrees F)
+
+**Min Dew Point F :** The minimum dew point (in degrees F)
+
+**Max Humidity :** The maximum humidity (in %)
+
+**Mean Humidity :** The average humidity (in %)
+
+**Min Humidity :** The minimum humidity (in %)
+
+**Maximum Sea Level Pressure :** The maximum atmospheric pressure at sea level (in inches of mercury)
+
+**Mean Sea Level Pressure :** The average atmospheric pressure at sea level (in inches of mercury)
+
+**Min Sea Level Pressure :** The minimum atmospheric pressure at sea level (in inches of mercury)
+
+**Max Visibility Miles :** The maximum visibility (in miles)
+
+**Mean Visibility Miles :** The average visibility (in miles)
+
+**Min Visibility Miles :** The minimum visibility (in miles)
+
+**Max Wind Speed MPH :** The maximum sustained wind speed (in miles per hour)
+
+**Mean Wind Speed MPH :** The average sustained wind speed (in miles per hour)
+
+**Max Gust Speed MPH :** The maximum gust wind speed (in miles per hour)
+
+**Precipitation :** The amount of precipitation (measured in inches)
+
+**Events :** Weather events that occurred that day (e.g., rain, fog, snow, thunderstorm etc.)
+
+# Data Visualizations
+
+## Exploring the Stations Dataset
+
+Since the “Stations” dataset was the first one I imported, let’s start with a little exploration there. First of all, how many unique stations are we dealing with?
+
+```{r piped_stat sum}
+station %>% summarise(n_distinct(station_id))
+```
+
+Wow! 58 different stations! Let’s take a quick peek at where they are located.
+
+```{r ggmaps1 , message=FALSE}
+station_locs <- station %>% group_by(station_id) %>% select(1:4,-2)
+mymap <- get_map(location = "Seattle", maptype = "roadmap", zoom = 12)
+mymap1 <- get_map(location = c(lon =-122.315 , lat = 47.63), maptype = "roadmap", zoom = 13)
+ggmap(mymap) + geom_point(aes(x = long, y = lat), data = station_locs, 
+    alpha = 0.7, color = "darkred", size = 2)
+```
+
+So it looks like all of the stations are located near the Lower Queen Anne, Belltown, International District, Capitol Hill and University of Washington areas. Let’s take a more 
+zoomed-in look.
+
+```{r ggmaps2 , echo=FALSE}
+ggmap(mymap1) + geom_point(aes(x = long, y = lat), data = station_locs, 
+    alpha = 0.7, color = "darkred", size = 2)
+```
+
+Great! So the locations are pretty well clustered. I wonder what order they were added in.
+
+
+```{r install date}
+station$install_date  <- mdy(station$install_date)
+
+
+station %>% summarise(n_distinct(install_date))
+
+station %>% group_by(install_date) %>% summarise(count = n()) %>% 
+    arrange(install_date)
+```
+It looks like the vast majority (86%) of the stations were added on opening day. Let’s see where those original ones were and where the rest were added.
+
+
+
+So they added more stations throughout the district that they serve, instead of adding several new stations to a single neighborhood all at once. Good to know.
+
+Now, I wonder how many bikes can be parked at each station (as of August 31,2016)?
+
+```{r blue hist}
+hist(station$current_dockcount, breaks = "fd",
+     freq = NULL, col = "light blue",
+     main = paste("Histogram of Current Dock Count"),
+     xlab = "Number of Bikes per station",
+     axes = TRUE, plot = TRUE, labels = FALSE,
+     nclass = NULL, warn.unused = TRUE)
+```
+
+Well that’s weird, some of the stations have a dock count of 0. I’m assuming they didn’t start that way. Let’s calculate the change in dock count from station installation to August 31, 2016 and plot it on a map.
+
+**Change in Number of Bike Docks Per Station**
+
+Any stations with no change in number of docks are not shown here.
+
+```{r blockexchange}
+dock_change <- station %>% group_by(station_id) %>% select(station_id, 
+    long, lat, ends_with("dockcount")) %>% mutate(dock_change = current_dockcount - 
+    install_dockcount)
+dock_change %>%
+group_by()
+
+ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(dock_change), color = factor(dock_change)), 
+                           data = dock_change, alpha = 0.6) + 
+guides(color = guide_legend(title = "Change"), size = guide_legend(title = "Change")) + 
+scale_size_manual(values = 10:1)
+```
+Wow! Looks like quite a few stations took away bike docks and none gained any. Perhaps those stations weren’t being used very frequently. We’ll have to look at that a bit later.
+
+
+**Current Station Size**
+
+I’m going to take one quick look at the current size of each station before moving on to the next dataset. Note: I did not include any stations that were closed as of August 31, 2016 in this map
+
+```{r guides color , echo=FALSE}
+ggmap(mymap1) + geom_point(aes(x = long, y = lat, size = factor(current_dockcount), color = factor(current_dockcount)), 
+                           data = dock_change, alpha = 0.8) + 
+guides(color = guide_legend(title = "Current"), size = guide_legend(title = "Current")) + 
+scale_size_manual(values = 1:10)
+```
+
+So it looks like the biggest stations tend to be on the outskirts of the rest. Where there are several stations in close proximity, there tend to be fewer bike docks at each station. That makes sense, logically speaking. If you go to a station and there is no bike to rent, you can easily go to another nearby, assuming there is another nearby. In areas where the stations are more secluded, it’s more important that there be bikes and open spaces readily available for users.
+
+Alright, I’m feeling good about exploring this dataset. Time to check out the trip dataset!
+
+# Exploring the Trips Dataset
+
+It’s been a while since we’ve looked at the trip dataset, so let’s take another peek at it here.
+
+```{r str trip , echo=FALSE}
+str(trip)
+
+```
+
+Great, so there are quite a few things that we can potentially look at using this dataset by itself. Let’s start with the number of trips per day since Pronto! began opening bike stations. To do that, we need to recode our start date/times as POSIXct objects. We’ll use the `lubridate` package for this.
+
+```{r lubridate stuff, message=FALSE, echo=TRUE, results='hide', fig.show = 'hide'}
+trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
+
+# Recode the dates
+trip_2 <- trip_2 %>% mutate(start_date = paste(month(start_dt), 
+    day(start_dt), year(start_dt), sep = "/"))
+trip_2$start_date <- mdy(trip_2$start_date)
+
+trip_2 <- trip_2 %>% mutate(stop_date = paste(month(stop_dt), 
+    day(stop_dt), year(stop_dt), sep = "/"))
+trip_2$stop_date <- mdy(trip_2$stop_date)
+
+trip_2 %>% 
+
+  group_by(start_date) %>%
+
+  summarize(N = n()) %>%
+
+  ggplot(aes(x = start_date, y = N)) + 
+
+  geom_line() + 
+
+  labs(x = "Date", y = "Number of trips per day") + 
+
+  theme_bw() + geom_smooth()
+```
+
+Great! Time to visualize the number of rides per day.
+
+```{r hidden trip_2 , echo=FALSE, message=FALSE}
+trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
+
+# Recode the dates
+trip_2 <- trip_2 %>% mutate(start_date = paste(month(start_dt), 
+    day(start_dt), year(start_dt), sep = "/"))
+trip_2$start_date <- mdy(trip_2$start_date)
+
+trip_2 <- trip_2 %>% mutate(stop_date = paste(month(stop_dt), 
+    day(stop_dt), year(stop_dt), sep = "/"))
+trip_2$stop_date <- mdy(trip_2$stop_date)
+
+trip_2 %>% 
+
+  group_by(start_date) %>%
+
+  summarize(N = n()) %>%
+
+  ggplot(aes(x = start_date, y = N)) + 
+
+  geom_line() + 
+
+  labs(x = "Date", y = "Number of trips per day") + 
+
+  theme_bw() + geom_smooth()
+```
+
+
+Hmm, grouping by day is a little noisy. Perhaps we should try by month?
+
+## Plotting Trips Per Month (By Season)
+
+First, we need to create a “Year-Month” variable
+
+```{r start_ date}
+start_date_ym <- trip_2 %>% mutate(ym = paste(year(start_date), 
+    month(start_date), sep = "/"), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall",
+                                            ifelse(ym %in% c("2014/12","2015/1", "2015/2"), "Winter",
+                                            ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+```
+
+Now plot. I think I’ll plot this by month but color it by season (where December, January, and February are “winter”, March, April, and May are “spring”, June, July, August are “summer”, and September, October, November are “autumn”)
+
+
+```{r colorfulgraph, echo=FALSE}
+start_date_ym %>%
+  group_by(ym, Season) %>%
+  summarize(N=n()) %>%
+  ggplot(aes(x = ym, y = N, col = Season)) + 
+  geom_point() +
+  geom_line(group = 1) +
+  theme_bw() +
+  labs(x = "Date", y = "Number of Trips (per month)")
+```
+
+Well that intuitively makes sense. The number of trips taken per month increases in the spring, reaches a maximum in the summer, declines through the fall, remains fairly stable in the winter and then repeats.
+
+## Average Trip Duration
+
+Great! I wonder how the average trip duration fluctuates over this time period.
+
+```{r trip duriation}
+# Convert Trip Duration from Seconds to Minutes
+Trip_Duration_Minutes <- start_date_ym %>%
+  mutate(trip_duration_min = tripduration/60) %>%
+  group_by(ym) %>% 
+  select(ym,trip_duration_min) %>%
+  summarise(avg = mean(trip_duration_min), sd = sd(trip_duration_min)) %>%
+  mutate(se = sd/sqrt(n()), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall",
+                                            ifelse(ym %in% c("2014/12","2015/1", "2015/2"), "Winter",
+                                            ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+```
+
+Now to plot the average trip duration (in minutes) (plus or minus standard error), with colors indicating season.
+
+```{r ggplotripduration}
+ggplot(Trip_Duration_Minutes, aes(x=ym, y=avg, col=Season)) + 
+  geom_point() + 
+  geom_line(group = 1) + 
+  geom_errorbar(aes(ymin=avg-se, ymax=avg+se)) + 
+  theme_bw() + 
+  labs(x="Date", y="Duration of Average Trip (In Minutes)")
+
+```
+
+
+
+
+There’s surprisingly not a huge range in trip durations here.
+
+The little bit of variation here makes logical sense. Longer trips were being taken in the spring and summer months rather than the fall and winter. It’s also notable that the spring and summer of 2016 may have shown fewer trips than the previous year, show a slight increase in average trip length.
+
+
+```{r daysofweek}
+trip_2$wd <- wday(trip_2$start_date, label = TRUE)
+
+```
+
+## Number of Trips by Day of Week
+
+Now to plot the total number of trips by day of the week.
+
+
+
+Ok, so there are definitely more trips during the week than on the weekends. I wonder if this varies by season too.
+
+
+```{r ggpointlinepoint, echo=FALSE}
+start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)
+
+start_date_ym %>%
+  group_by(Season, wd) %>%
+  summarize(N = n()) %>%
+  ggplot(aes(x=wd,y=N,col=Season,group=Season))+
+  geom_point() + 
+  geom_line() +
+  labs(x = "Day of the Week", y = "Number of Trips") + 
+  theme_bw()
+ 
+```
+
+
+So it looks like usage is relatively consistent across seasons, at least as far as the number of trips are concerned.
+
+
+## Number of Trips by Time of Day
+
+
+How about time of day? Are people using these around commuting times during the week and later on weekends? 
+
+```{r mult days and graphs, echo=FALSE}
+start_date_ym %>%
+  group_by(Hour = hour(start_dt), Season, wd) %>%
+  summarize(N=n()) %>%
+  ggplot(aes(x = Hour, y = N , color = Season, group = Season))+
+  geom_point()+
+  geom_line()+
+  geom_line()+
+  theme_bw()+
+  labs(x= "Hour of Day", y = "Number of Trips")+
+  facet_wrap(~ wd, ncol = 2)
+
+
+
+
+
+```
+
+
+
+Wow, looks like regardless of the season, people are commuting to/from work using this service (there’s a spike between 8 and 10 AM and another between 4 and 7 PM Monday through Friday). But the weekends seem to be popular between 10 AM and 10 PM.
+
+## Number of Trips by Member Type
+
+I wonder if different types of members (those who have a membership vs. those that bought a 24 hour or 3 day pass) vary in the number of trips they take.
+
+If I were to guess, I’d think the short-term passes would be ideal for tourists or people looking for a quick weekend trip, whereas members may be more likely to continue using the service year-round. Let’s check out my assumptions by plotting, once again colored by season.
+
+
+```{r two lined}
+start_date_ym %>%
+  filter(usertype != "") %>%
+  group_by(ym , Season, usertype) %>%
+  summarize(N = n()) %>%
+  ggplot(aes(x=ym, y = N, color = Season, group = usertype))+
+  geom_point(aes(shape = usertype, size = 2)) +
+  geom_line()+
+  theme_bw()+
+  labs(x ="Date", y = "Total Number of Trips per Month")
+
+
+
+```
+
+
+Surprisingly (to me, at least), different types of users seem to follow similar patterns of usage. Spring and Summer are definitely the most popular times for anyone to ride a bike in the Seattle area.
+
+
+## Trip Duration by Member Type
+
+While it may seem that the trip duration shouldn’t vary widely by member type, a quick look at Pronto!’s pricing structure may make you reconsider that assumption. You see, while you have to purchase either an annual membership (\$85/year), a 24-Hour Pass (\$8) or a 3-Day Pass (16) there is still a cap on the duration of your trip. For members, any ride under 45 minutes is free, but any ride going over 45 minutes will incur a fee of 2 for every additional 30 minutes. For short-term users, any ride under 30 minutes is free, but going over that time limit would cost you an additional 2 for the first 30 minutes and 5 for each additional 30 minutes after that!
+
+Let’s see if these time limits cause differing behaviors in our users.
+
+
+```{r double graph}
+
+start_date_ym %>%
+  filter(usertype != "") %>%
+  group_by(tripduration, trip_id, usertype) %>%
+  summarize(N=n()) %>%
+  ggplot(aes(x= tripduration/60, fill= usertype, color = usertype), group = usertype) + 
+    geom_histogram(binwidth = 2) +
+    xlim(0,60) +
+    facet_grid(. ~ usertype) +
+    labs(x="Trip Duration (minutes)", y = "Number of trips") +
+    geom_vline(xintercept = 45, linetype = "dashed")
+    
+```
+
+
+Ok, so our members are pretty good about making sure that they return their bike before they incur extra charges, but the short-term pass holders frequently go over their time limit. I wonder how the cost of a trip varies for members and pass holders. Let’s try to calculate the cost of a trip.
+
+
+
+```{r double hide, message=FALSE, fig.show='hide'}
+ 
+
+start_date_ym <- start_date_ym %>% mutate(cost = ifelse(usertype == "Member" & 
+    tripduration/60 <= 45, 0, ifelse(usertype == "Member" & tripduration/60 > 
+    45 & tripduration/60 <= 75, 2, ifelse(usertype == "Member" & 
+    tripduration/60 > 75, (2 + 2 * ceiling((tripduration/60 - 75)/30)), 
+    ifelse(usertype == "Short-Term Pass Holder" & tripduration/60 <= 
+        30, 0, ifelse(usertype == "Short-Term Pass Holder" & 
+        tripduration/60 > 30 & tripduration/60 < 60, 2, ifelse(usertype == 
+        "Short-Term Pass Holder" & tripduration/60 > 60, (2 + 
+        5 * ceiling((tripduration/60 - 60)/30)), NA)))))))
+
+
+
+```
+
+
+That was a complicated nested if/else statement! Let’s see how much these folks are paying in additional fees!
+
+```{r double crap, echo=FALSE}
+
+start_date_ym %>%
+  filter(usertype != "") %>%
+  filter(cost > 0) %>%
+  ggplot(aes(x = cost, fill = usertype)) +
+    geom_histogram(binwidth = .5) +
+    facet_grid(.~ usertype) +
+    scale_fill_manual( values = c("pink", "lightblue")) +
+    xlim(0,20)+
+    guides(fill = F) 
+
+```
+
+Looks like short-term pass holders (who are already paying a higher price per day of biking), are also paying lots of extra fees. This could be because they are unfamiliar with the pricing structure and don’t realize they need to return their bike to a station within 30 minutes without getting charged. It is also possible that short-term users may be tourists who don’t know their way around as easily, and thus can’t find their way to a station within the time limit.
+
+
+
+
+## Member Demographics
+
+
+We only seem to have age and gender information about people who have an annual Pronto! membership, so we can at least take a look at what types of people use this service.
+
+Let’s look first at age.
+
+
+```{r big blue}
+trip_2$usertype <- as.factor(trip_2$usertype)
+trip_age <- trip_2 %>% mutate(age = year(start_dt) - birthyear)
+
+hist(trip_age$age, main = "Member Age", xlab = "Number of Riders", 
+    col = "#56B4E9", breaks = 25)
+```
+
+
+
+My first instinct here is to say “Wow! There’s a lot of 20 and 30-somethings that use this service!” But this figure (and these data) may be a little misleading. You see, we don’t have any sort of Rider ID number, meaning we can’t take “individual activity level” into account. So we can’t tell if the tallest spike is because 5 very athletic 28-year-olds went on 4,000 trips each, or if 100 people went on 200 trips each, or if there were 20,000 28-year-olds who each only used the service once.
+
+The same problem would arise if we looked at gender, so I’m just going to move beyond demographics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

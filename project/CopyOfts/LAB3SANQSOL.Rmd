@@ -1,0 +1,117 @@
+---
+title: "Activity 3 Solution"
+author: "Joel Sanqui"
+date: "September 27, 2017"
+output: html_document
+---
+
+1. Create and describe the time series plot of the 'Trade.csv' data located at the Data Sets folder in AsULearn. This data set contains monthly employment data (number of people employed) in trade industries in one city. Call this data Yt.
+
+```{r}
+y <- read.csv("/home/students/holmanma/TS/Time_S/ts/Trade.csv", header = T)
+yt <- ts(y)
+plot.ts(yt)
+
+```
+
+The 5 year monthly unemployment data shows an increasing trend in the number of people employed in trade industry in one city with an annual seasonality. It is non-stationary with mean increasing over time but with relatively constant variance.  The data shows postive autocorrelation with no attypical event.  
+
+2. Fit a simple linear regression trend model to the trade data. Interpret the estimates of the intercept and slope in context.
+```{r}
+t <- 1:60
+mod1 <- lm(yt ~ t)
+plot.ts(yt)
+summary(mod1)
+abline(mod1, col = "red")
+```
+
+The estimate of the intercept is 314, which suggests that employment numbers started out at around 314 people at the time data began being collected. The estimate of the slope is 1.165, meaning that the number of people employed increases by approximately 1.165 each month.
+
+
+3. Is there a statistically significant evidence to reject the null hypothesis that the slope of the model is 0? Explain.
+
+Yes, there is statistically siginicant evidence for us to reject the null hypothesis that the slope of the model is 0. There are a few values in the summary of our model that tell us we should reject the null hypothesis. First there is the t-value for the slope component. If the t-value is large, we reject the null hypothesis, and in this example the t-value is 18.71, which is sufficiently large. Equivalently, we reject the null hypothesis when the p-value is low (using .05 as a significance cut off). In this fit, the p-value is less than 2e-16, which is significantly smaller than 0.05. Both of these indicators tell us that we should reject the null hypothesis therefore telling us that the slope of the model is not 0.
+
+4. Obtain the de-trended trade data then create and describe the time series plot of the de-trended trade data. (Hint: the de-trended data are the residuals after fitting the simple linear regression model in #2). Call the de-trended data Dt. Is Dt a white noise? Justify by attaching and discussing its correlogram.
+
+```{r}
+Dt <- ts(mod1$residuals) 
+plot.ts(Dt)
+acf(Dt, lag = 60)
+```
+
+Dt is not white noise because, according to the ACF, there is still autocorrelation. The acf plot indicates this, because there are a couple lags besides just the first one that are outside of the blue significance bounds on the graph. You can also tell through the acf plot of Dt that the data still has annual seasonality because of the significant autocorrelation at lag 12 and lag 24. 
+
+5. What value of k will remove the seasonality of the de-trended trade data Dt using lag k differencing? Apply this differencing then attach and describe the time series plot of the differenced data. Call this differenced data Ft. Does differencing remove the seasonality in the data?
+
+We want to use k=12 to remove the seasonality of the data since we are working in monthly time intervals and the seasonality is annual.
+
+```{r}
+Ft <- diff(Dt, lag = 12) 
+plot.ts(Ft)
+```
+
+Yes, this differencing removes the seasonality. The new time series is autocorrelated. It shows an increasing trend up to t = 35 then decreases.
+
+6. Fit a trigonometric regression seasonal model to the de-trended trade data Dt and obtain the residuals. Create and describe the time series plot of the residuals (which can also be called seasonally adjusted de-trended data). Call this seasonally adjusted de-trended data St. Is St a white noise? Justify by attaching and discussing its correlogram.
+
+```{r}
+Dt <- data.frame(Trade = mod1$residuals)
+trigmodel <- lm(Trade ~ sin(2*pi/12 * t) + cos(2*pi/12*t), data = Dt)
+St <- ts(trigmodel$residuals)
+plot.ts(St)
+acf(St)
+
+```
+
+The residuals St after fitting the trigonometric regression model to the de-trended data still exhibits seasonality and auticorrelation.  It is not a white noise since there is still significant autocorrelation at lag 1 and at other higher lags.  In particular, it suggests possibly a quarterly seasonality because of the almost significant autocorrelations at lag 3 and significant autocorrelations at lags that are multiples of 3.
+
+7. What are the estimates of the beta parameters of the trigonometric seasonal regression model in #6? Which beta coefficient(s) is/are significant?
+
+```{r}
+summary(trigmodel)
+```
+
+The estimate of the $\beta_1$ coefficient (the sine portion of the trigonometric seasonal model) is -7. We know it is significant since we can reject the null hypothesis that says the coefficient is equal to zero. We know we can reject it since the t-value is -5.723 which is significantly large and the pvalue is 4.062184e-07 which is significantly less than 0.05. The estimate of the $\beta_2$ coefficient (the cosine portion of trigonometric seasonal model) is 0.89. However, there is not enough evidence to reject the null hypothesis that $\beta_2= 0$. The t-value for the  coefficient is 0.725 which isn't sufficiently large and the corresponding p-value is 0.471 which is not less the 0.05.
+
+8. Discuss the result of the F-test from fitting the trigonometric seasonal regression model. Is the model significant?
+
+The F-statistic for testing the null hypothesis $H_0: \beta_1=\beta_2=0$ vs. the alternative hypothesis that at least one of the beta coefficients $\beta_1$ and $\beta_2$ is non-zero is 16.64 with a p-value of 2.03e-06 which is less than any reasonable significance level. This means that the model is statistically significant, that is, the model explains the variability in St.
+
+9. Discuss how well the trigonometric seasonal regression model fit the de-trended trade data.
+
+The R-squared of the trig model is 0.3687. This mean that only 36.87% of the variation in St is explained by the trig model suggesting that the the fit of the model to the data is reasonable at best but not that good. 
+
+10. Forecast the number of employed individuals for month 61 by first using the trigonometric seasonal regression model in #6 and then using the linear regression model in #2. (Hint: Forecast D61 first then use appropriate back-transformations to get Y61)
+
+```{r}
+d61 <- predict(trigmodel, newdata = data.frame(t = 61))
+y61 <- predict(mod1, newdata = data.frame(t=61))
+ypredicted61 <- d61 + y61
+ypredicted61
+
+```
+Alternatively,
+
+```{r}
+#linear regression model from #2
+slope <- summary(mod1)$coefficients[2,1]
+int <- summary(mod1)$coefficients[1,1]
+Y61 <- int+slope*61
+Y61
+```
+```{r}
+#trigonometric seasonal regression model from #6
+t<-61
+Int <- summary(trigmodel)$coefficients[1,1]
+beta1 <- summary(trigmodel)$coefficients[2,1]
+beta2 <-summary(trigmodel)$coefficients[3,1]
+D61 <- Int+beta1*sin(2*pi*t/12) + beta2*cos(2*pi*t/12)
+
+Month_61<- D61+Y61
+Month_61
+
+```
+
+Hence the forecast for the number of employed individuals for month 61 is about 382.
+

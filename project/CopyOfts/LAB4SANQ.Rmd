@@ -1,0 +1,137 @@
+---
+title: "Activity 4 Solution"
+author: "Joel Sanqui"
+date: "September 27, 2017"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+1. Attach and describe the time series plot of the electricity price data stored in the Excel file ElectricityPrice.csv. This data file contains quarterly average retail price of electricity in cents/kwh from 2001 - 2014.
+
+```{r}
+
+ep <- read.csv("/home/students/holmanma/TS/Time_S/ts/ElectricityPrice.csv", header=F)
+ept <- ts(ep[,2], frequency=4, start=c(2001,1))
+plot.ts(ept)
+```
+
+The quarterly electricity price from 2001 to 2014 exhibits an overall increasing trend with a strong annual seasonality. This is a non-stationary time series with a non-constant mean but with relatively constant variance.  It is positively autocorrelated with no obvious atypical event except that there might be one around 2009 when the increasing treend seems to start to level off.
+
+2. De-trend the data using lag 1 differencing. Describe and attach the time series plots of the de-trended data.
+
+```{r}
+
+```
+
+Detrending the data with lag 1 differencing, removes the increading trend that the original data shows. It changes it so that the mean is now steady at around 0. In doing this, it also allows us to see very clearly that there is an annual seasonal trend in the data.
+
+3. Fit a trigonometric seasonal regression model to the de-trended data. Attach the time series plot of the de-trended data with the fitted values.
+
+```{r}
+t <- 1:53
+a <-sin(2*pi*t/4)
+b <-cos(2*pi*t/4)
+mod1 <- lm(Dt~a+b)
+S <- residuals(mod1)
+St <- ts(S, frequency=4, start=c(2001,1))
+ft<-mod1$coefficients[1]+mod1$coefficients[2]*sin(2*pi*t/4)+mod1$coefficients[3]*cos(2*pi*t/4)
+plot.ts(St,col='red',ylab='Time Series')
+par(new=T)  #a new plot will be added to the current plot
+plot(t,ft,axes = F, ylab = 'Time Series', col='blue',type='l')  #use the same values for the xand y axes and labels
+par(new=F)
+```
+
+4. Fit an appropriate seasonal regression model with dummy variables to the de-trended data. Attach the time series plot of the de-trended data with the fitted values.
+
+```{r}
+d1 <- rep(c(1,0,0,0),13) #quarter 1
+d1[53]<-1
+d2 <- rep(c(0,1,0,0),13) #quarter 2
+d2[53]<-0
+d3 <- rep(c(0,0,1,0),13) #quarter 3
+d3[53]<-0
+
+
+mod2 <- lm(Dt~d1+d2+d3)
+DV <- residuals(mod2)
+DVt <- ts(DV, frequency=4, start=c(2001,1))
+gt<-mod2$coefficients[1]+mod2$coefficients[2]*d1+mod2$coefficients[3]+d2+mod2$coefficients[4]*d3
+plot.ts(DVt)
+plot.ts(St,col='red',ylab='Time Series')
+par(new=T)  #a new plot will be added to the current plot
+plot(t,gt,axes = F, ylab = 'Time Series', col='blue',type='l')  #use the same values for the xand y axes and labels
+par(new=F)
+
+```
+
+5. Which regression model appears to fit the de-trended data better? Support your answer by discussing statistics and residual plots.
+
+```{r}
+summary(mod1)
+summary(mod2)
+par(mfrow=c(2,2))   #sets a 2 rows by 2 columns plotting regions
+par(mar=c(4,4,2,2))  #sets the margins
+plot.ts(mod1$residuals)
+plot.ts(mod2$residuals)
+acf(mod1$residuals, ylab='mod1$residuals ACF')
+acf(mod2$residuals, ylab='mod2$resduals ACF' )
+
+
+```
+
+Based on statistics, the seasonal regression model with dummy variables seems to do a better job of fitting the data. When looking at how well a model fits data, we turn to the $R^2$ statistic. A higher $R^2$ indicates a better fit and this value can range from 0-1. The adjusted $R^2$ statistic for the dummy variable seasonal regression is 0.9156 which is significantly higher than the one for the trigonometric seasonal regression which is only 0.7041 which indicates that the dummy variable regression is a better fit of the data. We can also tell by looking at the plot of the residuals for each of these models. In the plot of the residuals of the trigonometric fit, there still is a repeating pattern which indicates that this model might not have compensated for the seasonal trend very well. In contrast, the residual plot for the dummy variable model is much more random looking and lacking any sort of repeating pattern which means this model did a good job of removing the seasonality. In addition,the ACF plots of the residuals for the dummy regression model shows no autocorrelation indicating it is more of a white noise which is not true for the residuals from the trigonometric model. 
+
+6. Using the regression model in #4 and undoing the lag 1 differencing in #2, what are the predicted average retail prices of electricity for the 3rd and 4th quarter of this year?
+
+```{r}
+
+int <- summary(mod2)$coefficients[1,1]
+B1 <- summary(mod2)$coefficients[2,1]
+B2 <- summary(mod2)$coefficients[3,1]
+B3 <- summary(mod2)$coefficients[4,1]
+
+thr_14 <- int + B1*0 + B2*0 + B3*1 + ept[54]
+fth_14 <- int + B1*0 + B2*0 + B3*0 + thr_14
+fst_15 <- int + B1*1 + B2*0 + B3*0 + fth_14
+scd_15 <- int + B1*0 + B2*1 + B3*0 + fst_15
+thr_15 <- int + B1*0 + B2*0 + B3*1 + scd_15
+fth_15 <- int + B1*0 + B2*0 + B3*0 + thr_15
+fst_16 <- int + B1*1 + B2*0 + B3*0 + fth_15
+scd_16 <- int + B1*0 + B2*1 + B3*0 + fst_16
+thr_16 <- int + B1*0 + B2*0 + B3*1 + scd_16
+fth_16 <- int + B1*0 + B2*0 + B3*0 + thr_16
+fst_17 <- int + B1*1 + B2*0 + B3*0 + fth_16
+scd_17 <- int + B1*0 + B2*1 + B3*0 + fst_17
+thr_17 <- int + B1*0 + B2*0 + B3*1 + scd_17
+fth_17 <- int + B1*0 + B2*0 + B3*0 + thr_17
+
+thr_17
+fth_17
+```
+
+Using the regression model in number 4 and undoing the lag 1 differencing, gives us a prediction of 10.4043 for the 3rd quarter of 2017 and a prediction of 10.4227 for the 4th quarter of 2017.
+
+7. Is the seasonal regression model with dummy variables significant? Discuss.
+
+```{r}
+summary(mod2)
+acf(mod2$residuals)
+
+```
+
+The seasonal regression model with dummy variables is significant because the F statistic is large and it's corresponding p value is very small. The adjusted $R^2$ stat is also 0.9156 which says that much of the variance in the data is explained in our model. Additionally, the correllogram tells us that residuals auto-correlation at any lag is negligible, because everything is within the bounds, and that we have identified much of the patterns in the data.
+
+8. In terms of the beta parameters of the dummy regression model, what are the null and alternative hypotheses for testing if there is no seasonality in the de-trended data? State the conclusion of this test by interpreting its p-value.
+
+The null hypothesis for testing if there is no seasonality in the detrended data is $\beta_1=\beta_2=\beta_3=0$ while the alternative hypothesis is that at least one of these beta coefficients is not equal to 00.
+
+The p-value associated with the F statistic for mod2 is very low, telling us that the model is significant and that we rejected the null hypothesis suggesting that at least one of the dummy variables is significant.  This means the model accounts for seasonality in the data. 
+
+9. In terms of the beta parameters of the dummy regression model, what are the null and alternative hypotheses for testing if there is no change in the average retail price of electricity from 4th quarter to first quarter. State the conclusion of this test by interpreting its p-value.
+
+Since $\beta_1$ is the average rate of change of the data from quarter 4 to quarter 1, to test if there is no change from the fourth to first quarter, our null hypothesis is $H_0: \beta_1=0$ meaning that there is no change from quarter 4 to quarter 1. On the other hand, the alternative hypothesis $H_a: \beta_1 \ne0$. We reject the null hypothesis since the p-value of the t-test for $\beta_1=0$ is 8.07e-8 which is very small. This means that there is a change in the average retail price of electricity between quarter four and quarter one.
+
+10. Discuss in layman's terms the result of testing $H_0: \beta_1 = \beta_3$ vs. $H_a: \beta_1 \ne \beta_3$ from the seasonal regression model with dummy variables.
+
+$\beta_1$ is the rate of change from quarter four to quarter one. $\beta_3$ is the rate of change from quarter four to quarter three. Testing this set of null and alternative hypotheses would tell us if these rate of changes are the same or not. In layman's terms the null hypothesis states that the jump in electricity price

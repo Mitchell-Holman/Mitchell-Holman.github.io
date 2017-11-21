@@ -1,0 +1,202 @@
+---
+title: "Lab-6"
+author: "Matt McCaskey, Tucker Southern, Mitch Holman"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+1.	Generate an MA(3) process by first randomly generating the Gaussian white noise ε_t, t = 1,2,3, …1000 using the  rnorm command in R with a mean of 0 and variance 1  then computing $y_t=100+ε_t-θ_1 ε_(t-1)-θ_2 ε_(t-2)-θ_3  ε_(t-3) $ for some values of $〖-1< θ〗_1,θ_2,θ_3<1$.  Specify the theta values you used.  Attach and describe the time series plot of $y_t$.
+```{r}
+t <- 1:1000
+gwn <- rnorm(t,0,1)
+theta1 <- .3
+theta2 <- .4 
+theta3 <- .3
+x <- 4:1000
+yt <- 100 - gwn[x] - (gwn[x-1])*theta1 - (gwn[x-2])*theta2 - (gwn[x-3])*theta3
+yts <- ts(yt)
+plot.ts(yts)
+var(yt)
+```
+
+2.	Investigate and discuss the effects of changing the values of θ_3 of the MA(3) process on Var(y_t) Are these effects reflected on the time series plot of y_t?  Write a brief paragraph discussing your finding.
+**The variance increases the closer theta3 gets to either 1 or -1, and decreases the closer theta3 gets to 0**
+
+3.	Investigate and discuss the effects of changing the values of θ_3 of the MA(3) process on autocorrelation ρ_3.    Are these effects reflected on the sample ACF?  ?  Write a brief paragraph discussing your finding.
+```{r}
+acf(yt)
+
+```
+**so as the theta 3 component gets closer to zero the lag 3 becomes less significant. If theta 3 is further from zero it becomes more significant.**
+4.	Using the theta values in #1, show the details of the calculations of  Var(y_t), Cov(y_t,y_(t+1)) and the lag 1 autocorrelations ρ_1.
+$$y_1= 100 +{ε_t-}\theta_1*\varepsilon_{t-1}-\theta_2*\varepsilon_{t-2}-\theta_3*\varepsilon_{t-3}+0*\varepsilon_{t+1}$$
+
+$$y_{t+1} =  100 + \varepsilon_{t+1}-\theta_1 * \varepsilon_t-\theta_2*\varepsilon_{t-1}-\theta_3*\varepsilon_{t-2}+0*\varepsilon_{t-3}$$
+
+```{r}
+z <- 1:996
+y <- 2:997
+cov(yt[z],yt[y])
+var(yt)
+```
+
+$$
+\begin{equation}
+var(yt) = var(ε_t) + var((.3)*\varepsilon_{t-1})) + var((.4)*ε_t-_2)) + var((.3)*ε_t-_3))\\
+= var(ε_t) + ((.3)^2)*var(ε_t-_1)) + ((.4)^2)*var(ε_t-_2)) + ((.3)^2)*var(ε_t-_3))\\
+= \sigma^2*(1+(.3^2)+(.4^2)+(.3^2))\\
+= 1.34
+\end{equation}
+$$
+
+
+
+$$
+\begin{equation}
+cov(y_t,y_{t+1}) = -\theta_1var(\varepsilon_t) +  \theta_1\theta_2var(\varepsilon_{t-1}) + \theta_2\theta_3var(\varepsilon_{t-2})\\
+= -\theta_1\sigma^2 + \theta_1\theta_2\sigma^2 + \theta_2\theta_3\sigma^2\\
+= -(.3) + (.3)*(.4) + (.4)*(.3)\\
+= -0.06
+\end{equation}
+$$
+
+$$
+\begin{equation}
+\rho_1 = \frac{cov(y_t,y_{t-1})}{SD(y_t)SD(y_{t-1})}\\
+= \frac{cov(y_t,y_{t+1})}{var(y_t)}\\
+= \frac{-.06}{1.34}\\
+= -0.04478
+\end{equation}
+$$
+
+
+
+
+
+5.	Using the theta values in #1, show the details of the calculations of  Cov(y_t,y_(t+2)) and the lag 2 autocorrelations ρ_2.
+$$
+\begin{equation}
+y_t= 100 +{\varepsilon_t-}\theta_1*\varepsilon_{t-1}-\theta_2*\varepsilon_{t-2}-\theta_3*\varepsilon_{t-3}-0*\varepsilon_{t+1}-0*\varepsilon_{t+2}-0*\varepsilon_{t+3}\\
+y_{t+2} = 100 + \varepsilon_{t+2}-\theta_1*\varepsilon_{t+1}-\theta_2*\varepsilon_{t}-\theta_3*\varepsilon_{t-1}+0*\varepsilon_{t-2}+0*\varepsilon_{t-3}\\
+\end{equation}
+$$
+
+$$
+\begin{equation}
+cov(y_t,y_{t+2}) = (1*0)var(\varepsilon_t) +  (-\theta_1*-\theta_3)var(\varepsilon_{t-1}) + (-\theta_2*0)var(\varepsilon_{t-2})\\
+= \theta_1\theta_3\sigma^2\\
+= (.3)*(.3)\\
+= 0.09
+\end{equation}
+$$
+
+$$
+\begin{equation}
+\rho_2 = \frac{cov(y_t,y_{t+2})}{var(y_t)}\\
+= \frac{.09}{1.34}\\
+= 0.06716418
+\end{equation}
+$$
+
+
+6.	Using the theta values in #1, show the details of the calculations of  Cov(y_t,y_(t+3)) and the lag 3 autocorrelations ρ_3.
+
+$$
+\begin{equation}
+y_t= 100 +{\varepsilon_t-}\theta_1*\varepsilon_{t-1}-\theta_2*\varepsilon_{t-2}-\theta_3*\varepsilon_{t-3}-0*\varepsilon_{t+1}-0*\varepsilon_{t+2}-0*\varepsilon_{t+3}\\
+y_{t+3} = 100 + \varepsilon_{t+3}-\theta_1-\varepsilon_{t+2}*\theta_2-\varepsilon_{t+1}*\theta_3-0*\varepsilon_{t}-0*\varepsilon_{t-1}-0*\varepsilon_{t-2}-0*\varepsilon_{t-3}\\
+\end{equation}
+$$
+
+$$
+\begin{equation}
+cov(y_t,y_{t+3}) = (1*-\theta_3)var(\varepsilon_t) +  (0*-\theta_1)var(\varepsilon_{t-1}) + (0*-\theta_2)var(\varepsilon_{t-2})\\
+= -\theta_3\sigma^2\\
+= -0.3
+\end{equation}
+$$
+
+$$
+\begin{equation}
+\rho_3 = \frac{cov(y_t,y_{t+3})}{var(y_t)}\\
+= \frac{-.3}{1.34}\\
+= -0.2238806
+\end{equation}
+$$
+
+7.	 In general, for an MA(3) process, what is the value of ρ_k when k>3?  How is this reflected in the sample ACF?
+
+**Because the previous three values($y_{t-1}$,$y_{t-2}$,$y_{t-3}$) are directly involved in the calculation of $y_t$, we expect to see auto-correlation for the values $k=1$, $k=2$, and $k=3$. When $k>3$, however, we would not expect to see auto-correlation as the values $y_{t-4}$ and beyond have no direct impact on $y_t$. This is reflected in the ACF plot for $y_t$, which shows clear serial correlation for only $\rho_0$,$\rho_1$, $\rho_2$, and $\rho_3$.**
+
+8.	Discuss the plot of the sample ACF of y_t.  
+```{r}
+acf(yt,100)
+```
+
+**The ACF plot shows serial correlation at the values $\rho_0$, $\rho_1$, $\rho_2$, and $\rho_3$. After this, most values are within the tolerance range.** 
+
+9.	Discuss the plot of the sample partial ACF of y_t.
+```{r}
+pacf(yt,100)
+```
+ ** so when we take the partial Acf we can see when we take the max lag of 100 that it goes to zero showing that as the lag goes on it will approach zero.
+
+10.	Discuss the effect of the signs of the theta coefficients on the autocorrelation at different lags.
+
+**While the sign of the theta coefficients does not effect the variance, it does seem to have an impact on the ACF. With positive theta values, we are likely to see auto-correlation that is positively correlated to the theta value. With a negative theta value, we are more likely to see a negative value in the ACF for the corresponding lag. A negative theta can also lessen the positive correlation at other lags.**
+
+    Upload the resulting .html file at the Activity 6 Submission Folder in AsULearn by midnight on Oct. 26, 2017.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

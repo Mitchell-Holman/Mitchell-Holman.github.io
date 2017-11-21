@@ -1,0 +1,129 @@
+a---
+title: "Activity 5 Solution"
+output:
+  html_document: default
+  html_notebook: default
+---
+---
+title: "Activity 5 Solution"
+author: "Joel Sanqui"
+date: "September 28, 2017"
+output: html_document
+---
+
+```{r, echo=FALSE}
+suppressWarnings(library(fpp)) #install this package to use the built-in functions such as ma, accuracy, etc.  
+```
+
+
+1.	Create  and describe the time series plot of the 'Trade.csv' data located at the Data Sets folder in AsULearn.  This data set contains monthly employment data (number of people employed) in trade industries in one city. Call this data Yt.
+
+```{r}
+data<-read.csv("/home/students/holmanma/TS/Time_S//ts/Trade.csv")
+Yt<-ts(data)
+plot.ts(Yt, type="l")
+```
+
+This nonstationary data exhibits a clear positive trend as well as approximately annual seasonality. It appears to have a mostly constant variance as well as positive autocorrelation with no atypical event.
+
+2.	Obtain and plot the 5-MA and 2x4-MA versions of the time series.  Discuss these plots in terms of smoothness and variability relative to each other and the original time series.
+
+```{r}
+MA5<-ma(Yt, order=5)
+MA2x4<-ma(Yt, order=4)
+MA2x4<-ma(MA2x4, order=4)
+
+plot(Yt, type="l")
+lines(MA5, col=2)
+lines(MA2x4, col=4)
+legend("topleft", lty=1,col=c(2,4), legend=c("5-MA", "2x4-MA"))
+
+```
+
+Both moving averages removed the second bump within each seasonality period, smoothing the original data and lowering the variability. The 2x4-MA rounds off the peaks and valleys of the seasonality, smoothing the data even more than the 5-MA.
+
+3.	What are the first 3 values of the 5-MA and 2x4-MA? 
+
+```{r}
+MA5[3]
+MA5[4]
+MA5[5]
+```
+
+4.	Which of the two moving averages in #2 is "closer" to the original time series?  What measure of closeness did you use?
+
+```{r}
+accuracy(MA5, Yt)[,c(2,3,5)]
+accuracy(MA2x4,Yt)[,c(2,3,5)]
+
+```
+
+Based on all three measures of accuracy above (Root Mean Squared Error, Mean Absolute Error, Mean Absolute Percentage Error), the 5-MA data is closer to the original.
+
+5.	Obtain and plot the simple exponentially smoothed version of the original data using a smoothing parameter $\alpha$ between 0 and 1.   Discuss this plot in terms of smoothness and variability relative to the original time series.   Use Y1 as the initial value of the exponentially smoothed version.
+
+```{r}
+ses<-1:60
+alpha=0.2
+ses[1]<-Yt[1]
+for(i in 2:60){
+  ses[i]<-alpha*Yt[i] + (1-alpha)*ses[i-1]
+}
+ses<-ts(ses)
+
+plot(Yt)
+lines(ses, col=2)
+legend("topleft", lty=1,col=2, legend="SES")
+
+```
+
+6.	What are the first 3 values of the exponentially smoothed version?
+
+```{r}
+ses[2]
+ses[3]
+ses[4]
+
+```
+
+7.	Investigate and discuss the effect of increasing$\alpha$.
+
+```{r}
+ses2<-1:60
+alpha=0.5
+ses2[1]<-Yt[1]
+for(i in 2:60){
+  ses2[i]<-alpha*Yt[i] + (1-alpha)*ses2[i-1]
+}
+
+ses2<-ts(ses2)
+
+ses3<-1:60
+alpha=0.1
+ses3[1]<-Yt[1]
+for(i in 2:60){
+  ses3[i]<-alpha*Yt[i] + (1-alpha)*ses3[i-1]
+}
+
+ses3<-ts(ses3)
+
+plot(Yt)
+lines(ses, col=2)
+lines(ses2, col=4)
+lines(ses3, col=6)
+legend("topleft", lty=1,col=c(6,2,4),
+       legend=c(expression(alpha==0.1),expression(alpha==0.2), expression(alpha==0.5)))
+
+```
+
+
+Lower alpha values smooth the data more, where higher alpha values are more accurate to the original.
+
+8. Interpret and obtain the value of $\hat{Y}_{61/60}$  based on simple exponential smoothing.
+
+```{r}
+ses[60]
+
+```
+
+The value above is the forecasted number of people employed for the 61

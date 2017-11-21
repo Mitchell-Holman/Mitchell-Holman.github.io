@@ -1,0 +1,111 @@
+---
+title: "Lab4"
+output: html_document
+author: "Mitch Holman, Matt McCaskey, Tucker Southern"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**1.	Attach and describe the time series plot of the electricity price data stored in the Excel file ElectricityPrice.csv.  This data file contains quarterly average retail price of electricity in cents/kwh  from 2001 - 2014.**
+```{r}
+Data <- read.csv("/home/students/holmanma/TS/Time_S/ts/ElectricityPrice.csv",header = FALSE)
+Ts <- ts(Data$V2)
+plot.ts(Ts)
+```
+
+
+**2.	De-trend the data using lag 1 differencing. Describe and attach the time series plots of the de-trended data.**
+```{r}
+Dt <- diff(Ts, lag = 1)
+plot(Dt)
+
+```
+The data still shows seasonality, but the increasing trend has been removed.
+
+**3.	Fit a trigonometric seasonal regression model to the de-trended data.  Attach the time series plot of the de-trended data with the fitted values.**
+```{r}
+t <- 1:53
+X1 <- sin(2*pi*t/4)
+X2 <- cos(2*pi*t/4)
+trig <- lm(Dt ~ X1 + X2)
+plot.ts(Dt)
+lines(trig$fitted.values, col = "red")
+```
+
+
+**4.	Fit an appropriate seasonal regression model with dummy variables to the de-trended data.  Attach the time series plot of the de-trended data with the fitted values.**
+ 
+```{r}
+Q2 <- rep(c(1,0,0,0),13)      #I changed this because the Differenced data starts with a value for Q2 -MJM
+Q2[53] <- 1
+Q3 <- rep(c(0,1,0,0),13)
+Q3[53] <- 0
+Q4 <- rep(c(0,0,1,0),13)
+Q4[53] <- 0
+dummy <- lm(Dt ~ Q2 + Q3 + Q4)
+plot.ts(Dt)
+lines(dummy$fitted.values, col = "red")
+```
+
+**5.	Which regression model appears to fit the de-trended data better?  Support your answer by discussing statistics and residual plots.**    
+```{r}
+plot(trig$residuals)
+plot(dummy$residuals)
+```
+
+```{r}
+summary(trig)
+summary(dummy)
+```
+The dummy-variable model has a much higher F-statistic, and a lower p-value. The max/min residuals of the dummy-variable model are closer to 0. The residuals of the dummy model are clustered around zero, while the residuals of the trig model are clustered around 0.2 and -0.2. Overall, the dummy model seems to fit the data better.
+
+
+**6.	Using the regression model in #4 and undoing the lag 1 differencing in #2, what are the predicted average retail prices of electricity for the 3rd and 4th quarter of this year?**  
+```{r}
+#67 = Q3 2017
+#68 = Q4 2017
+slope <- sum(Dt)/53
+Y1 <- Data[1,2]
+#Re-trending the data
+linear67 <- slope*67 + Y1
+linear68 <- slope*68 + Y1
+#Predicting seasonality
+dummy67 <- 0.01846 + 0.50692*(1)
+dummy68 <- 0.01846 - 0.67385*(1)
+
+Y67 <- linear67 + dummy67
+Y68 <- linear68 + dummy68
+
+Y67
+Y68
+```
+
+
+**7.	Is the seasonal regression model with dummy variables significant?  Discuss.**  
+```{r}
+summary(dummy)
+```
+Yes, with an F-statistic of 189 and a p-value of <.001 the seasonal regression model with dummy variables does appear to be significant.
+
+**8.	In terms of the beta parameters of the dummy regression model, what are the null and alternative hypotheses for testing if there is no seasonality in the de-trended data?  State the conclusion of this test by interpreting its p-value.**
+
+The null hypothesis would be that there is no relationship between the Q2, Q3, and Q4 variables and the detrended data, meaning there is no seasonality. The alternative hypothesis is that there is a relationship between the Q2, Q3, and Q4 variables and the detrended data, meaning there is seasonality. The p-values for Q2, Q3, and Q4 are 8.07e-08, 1.42e-12, and 2e-16 respectively.
+
+
+**9.	In terms of the beta parameters of the dummy regression model, what are the null and alternative hypotheses for testing if there is no change in the average retail price of electricity from 4th quarter to first quarter. State the conclusion of this test by interpreting its p-value.**
+
+When testing if there is any change in sales for Q1, $H_o: \beta_0 = 0$ vs. $H_a: \beta_0 \neq 0$. Our estimate of $\beta_0$ is 0.01846 with a p-value of .63. Because the p-value $\gg$ $\alpha$, we cannot reject the null-hypothesis.
+
+
+**10.	Discuss in layman’s terms the result of testing  Ho: β1 = β3    vs.  Ha: β1 ≠ β3 from the seasonal regression model with dummy variables.**      
+
+
+We can reject the $H_o: \beta_1 = \beta_3$ because our estimates of $\beta_1$ and $\beta_3$ are not equal, and their p-values lead us to belive they significant estimates.
+
+
+
+
+
+

@@ -1,0 +1,97 @@
+---
+title: "Untitled"
+author: "Mitch Holman, Tucker Southern, Matt McCaskey"
+date: "11/14/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.	Download the data stored in AsULearn under the filename ElectricityPrice.csv.  Attach and describe the time series plot of the electricity price data.
+
+
+```{r}
+ep <- read.csv("/home/students/holmanma/TS/Time_S/ts/ElectricityPrice.csv", header = F)
+plot.ts(ep$V2)
+```
+The price begins by oscillating between 7 and 8 and increases till it is oscillating between 9 and 10.
+
+
+
+2.	Remove the overall increasing trend in this data using an appropriate de-trending method.  Attach and describe the time series plot of de-trended data.
+
+```{r}
+trend <- diff(ep$V2, lag = 1)
+plot.ts(trend)
+```
+The increasing trend of the original data has been removed so that all of the data lies between -1 and 1
+
+3.	Using a seasonal regression model with dummy variables, obtain the seasonally-adjusted de-trended electricity price data.  Attach and describe the time series plot of this data.
+
+
+```{r}
+t <- 1:53
+X1 <- sin(2*pi*t/4)
+X2 <- cos(2*pi*t/4)
+trig <- lm(trend ~ X1 + X2)
+plot.ts(trend)
+lines(trig$fitted.values, col = "dark green")
+
+Q2 <- rep(c(1,0,0,0),13)      #I changed this because the Differenced data starts with a value for Q2 -MJM
+Q2[53] <- 1
+Q3 <- rep(c(0,1,0,0),13)
+Q3[53] <- 0
+Q4 <- rep(c(0,0,1,0),13)
+Q4[53] <- 0
+dummy <- lm(trend ~ Q2 + Q3 + Q4)
+plot.ts(trend)
+lines(dummy$fitted.values, col = "red")
+```
+
+
+
+
+4.	Obtain the best ARIMA model you can fit for the data in #3.   Explain how you arrived at your final model.
+
+
+```{r}
+acf(trend,53)
+pacf(trend,53)
+arima(trend, order = c(1,0,0))
+arima(trend, order = c(2,0,0))
+arima(trend, order = c(0,0,1))
+arima(trend, order = c(0,0,2))
+arima(trend, order = c(1,0,1))
+arima(trend, order = c(1,0,2))
+arima(trend, order = c(2,0,1))
+arima(trend, order = c(2,0,2))
+mod <- arima(trend, order = c(2,0,2))
+mod
+```
+The best ARIMA model we fit was arima(trend,order= c(2,0,2)). We observed the aic from this model and it was the closest to zero.
+
+5.	What is the forecast of the electricity price for the 3rd quarter of 2014?
+
+```{r}
+arimapred <- predict(mod, n.ahead=1)
+arimapred$pred[1] + ep$V2[54]
+```
+
+Upload the completed .html file at the Activity 8 Submission folder in AsULearn by midnight on Tuesday, Nov. 21, 2017.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

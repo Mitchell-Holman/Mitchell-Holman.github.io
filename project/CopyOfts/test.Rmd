@@ -1,0 +1,22 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+t <- 1:120
+Y <- rnorm(120,50*cos(2*pi*t/24),15)
+Yt <- ts(Y, frequency = 12)
+```
+
+```{r}
+DoubleExp <- HoltWinters(Yt, alpha = 0.1, beta = .3, gamma = F)
+plot.ts(Yt)
+lines(DoubleExp$fitted[,1], col = "red")
+lines()
+```
+

@@ -1,0 +1,128 @@
+---
+title: "Lab5"
+author: "Matthew McCaskey Mitchell Holman Tucker Southern"
+date: "9/26/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fpp)
+library(forecast)
+library(fma)
+library(expsmooth)
+library(zoo)
+```
+
+
+
+
+#1) Create  and describe the time series plot of the ‘Trade.csv‘ data located at the Data Sets folder in AsULearn.  This data set contains monthly employment data (number of people employed) in trade industries in one city. Call this data Yt.
+```{r}
+
+Yt <- read.csv("/home/students/holmanma/TS/Time_S//ts/Trade.csv")
+plot.ts(Yt, col = "gray")
+```
+
+
+
+#2) Obtain and plot the 5-MA and 2x4-MA versions of the time series.  Discuss these plots in terms of smoothness and variability relative to each other and the original time series.
+```{r}
+
+fiveMA <- ma(Yt, order = 5)
+plot.ts(Yt, col = "gray", main = "Order-5 MA")
+lines(fiveMA, col = "red")
+
+fourMA <- ma(Yt, order = 4, centre = F)
+twobyfourMA <- ma(fourMA, order = 4, centre = T)
+plot.ts(Yt, col = "gray", main = "2x4 MA")
+lines(twobyfourMA, col = "green")
+```
+Both the order-5 and the 2x4 MA display less variability than the original data, howerver the order-5 still contains sharp "turns", where the 2x4 MA is effectively smoothed.
+
+
+#3) What are the first 3 values of the 5-MA and 2x4-MA? 
+```{r}
+fiveMA[1:3]
+twobyfourMA[1:3]
+```
+The first two values of the order five moving average are NA's because calculating $Y_t$ requires $Y_{t-1}$ and $Y_{t-2}$ to be known. The first three values of the 2x4 MA are NA's because you are taking an order 4 MA twice. The first moving average, which is not centered, requires $Y_{t-2}$ and $Y_{t-1}$ to be known in order to calculate $Y_t$. The second order four MA, which is centered, only requires $Y_{t-1}$ to be known resulting in three total NA's.
+
+#4) Which of the two moving averages in #2 is “closer” to the original time series?  What measure of closeness did you use?
+```{r}
+fiveA <- accuracy(fiveMA, Yt[3:57,1])
+t4MA <-accuracy(twobyfourMA, Yt[4:56,1])
+fiveA
+t4MA
+
+```
+5-MA is the closer measurement of the original data $Y_t$.
+
+
+#5) Obtain and plot the simple exponentially smoothed version of the original data using a smoothing parameter α between 0 and 1.   Discuss this plot in terms of smoothness and variability relative to the original time series.   Use Y1 as the initial value of the exponentially smoothed version.
+```{r}
+a <- .4
+expsmoothe <- ses(Yt, alpha=a, initial="simple")
+plot.ts(Yt, col = "gray")
+lines(expsmoothe$fitted, col = "red")
+
+```
+
+#6) What are the first 3 values of the exponentially smoothed version?
+
+```{r}
+expsmoothe$fitted[1:3]
+```
+Notice the first value of the exponentially smoothed model matches the first value of the time series.
+
+
+#7) Investigate and discuss the effect of increasing α.
+
+```{r}
+a <- .1
+expsmoothe1 <- ses(Yt, alpha=a, initial="simple")
+a1 <- .5
+expsmoothe2 <- ses(Yt, alpha=a1, initial="simple")
+plot.ts(Yt, col = "gray")
+lines(expsmoothe1$fitted, col = "red")
+lines(expsmoothe2$fitted, col = "blue")
+```
+The closer $\alpha$ is to 1 the closer the exponentially smoothed model is to the original data.
+
+
+#8) Interpret and obtain the value of Y ̂_61|60┤  based on simple exponential smoothing.
+
+```{r}
+Y <- (1-a)*Yt[60,1] + a*expsmoothe$fitted[59]
+Y
+```
+Using the iterative form of the simple exponential model, we obtained the prediction `r Y` for $\tilde{Y}_{60}$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -15,15 +15,16 @@ bibliography: packages.bib
 knitr::opts_chunk$set(echo = TRUE,comment = NA,fig.align = "center")
 library(readr)
 ```
+
 ```{r, echo = FALSE, results = "hide"}
-PackagesUsed <- c("ggplot2", "bookdown")
+PackagesUsed <- c("ggplot2", "bookdown","dplyr","tidyr", "lattice","base","readr","ggmap","lubridate","methods","graphics","stats","bindrcpp")
 # Write bib information
 knitr::write_bib(PackagesUsed, file = "./packages.bib")
 # Load packages
-lapply(PackagesUsed, library, character.only = TRUE)
+
 ```
 
-This project uses packages `ggplot2` @R-ggplot2, `dplyr` @R-dplyr, `tidyr` @R-tidyr
+This project uses packages `ggplot2` by @R-ggplot2, `dplyr` by @R-dplyr, `bookdown` by @R-bookdown, `tidyr` by @R-tidyr, `lattice` by @R-lattice, `base` by @R-base, `readr` by @R-readr, `ggmap` by @R-ggmap, `lubridate` by @R-lubridate, `bindrcpp` by @R-bindrcpp
 
 # Introduction
 
@@ -526,15 +527,15 @@ Ok, so our members are pretty good about making sure that they return their bike
 ```{r double hide, message=FALSE, fig.show='hide'}
  
 
-start_date_ym <- start_date_ym %>% mutate(cost = ifelse(usertype == "Member" & 
-    tripduration/60 <= 45, 0, ifelse(usertype == "Member" & tripduration/60 > 
-    45 & tripduration/60 <= 75, 2, ifelse(usertype == "Member" & 
-    tripduration/60 > 75, (2 + 2 * ceiling((tripduration/60 - 75)/30)), 
-    ifelse(usertype == "Short-Term Pass Holder" & tripduration/60 <= 
+start_date_ym <- start_date_ym %>% mutate(tripduration_min = tripduration/60, cost = ifelse(usertype == "Member" & 
+    tripduration_min <= 45, 0, ifelse(usertype == "Member" & tripduration_min > 
+    45 & tripduration_min <= 75, 2, ifelse(usertype == "Member" & 
+    tripduration_min > 75, (2 + 2 * ceiling((tripduration_min - 75)/30)), 
+    ifelse(usertype == "Short-Term Pass Holder" & tripduration_min <= 
         30, 0, ifelse(usertype == "Short-Term Pass Holder" & 
-        tripduration/60 > 30 & tripduration/60 < 60, 2, ifelse(usertype == 
-        "Short-Term Pass Holder" & tripduration/60 > 60, (2 + 
-        5 * ceiling((tripduration/60 - 60)/30)), NA)))))))
+        tripduration_min > 30 & tripduration_min < 60, 2, ifelse(usertype == 
+        "Short-Term Pass Holder" & tripduration_min > 60, (2 + 
+        5 * ceiling((tripduration_min - 60)/30)), NA)))))))
 
 
 
@@ -545,15 +546,15 @@ That was a complicated nested if/else statement! Let’s see how much these folk
 
 ```{r double crap, echo=FALSE}
 
-start_date_ym %>%
-  filter(usertype != "") %>%
-  filter(cost > 0) %>%
-  ggplot(aes(x = cost, fill = usertype)) +
-    geom_histogram(binwidth = .5) +
-    facet_grid(.~ usertype) +
-    scale_fill_manual( values = c("pink", "lightblue")) +
-    xlim(0,20)+
-    guides(fill = F) 
+start_date_ym <- start_date_ym %>% mutate(tripduration_min = tripduration/60, cost = ifelse(usertype == "Member" & 
+    tripduration_min <= 45, 0, ifelse(usertype == "Member" & tripduration_min > 
+    45 & tripduration_min <= 75, 2, ifelse(usertype == "Member" & 
+    tripduration_min > 75, (2 + 2 * ceiling((tripduration_min - 75)/30)), 
+    ifelse(usertype == "Short-Term Pass Holder" & tripduration_min <= 
+        30, 0, ifelse(usertype == "Short-Term Pass Holder" & 
+        tripduration_min > 30 & tripduration_min < 60, 2, ifelse(usertype == 
+        "Short-Term Pass Holder" & tripduration_min > 60, (2 + 
+        5 * ceiling((tripduration_min - 60)/30)), NA)))))))
 
 ```
 
@@ -585,6 +586,250 @@ My first instinct here is to say “Wow! There’s a lot of 20 and 30-somethings
 The same problem would arise if we looked at gender, so I’m just going to move beyond demographics.
 
 
+
+# Exploring the Weather Dataset
+
+
+Now that I’ve visualized all that I can think of in terms of the “trips” dataset, it’s time to take a brief look at the weather dataset.
+
+Let’s get a quick reminder of what we’re looking at here.
+
+```{r g weather}
+glimpse(weather)
+```
+
+Great, let’s change the Date variable to a POSIXct object, and make the “Events” variable factors.
+
+
+```{r date weather}
+# Adjusting the Date Variable
+weather$Date <- mdy(weather$Date)
+
+# Adjusting the Events Variable
+weather$Events <- as.factor(weather$Events)
+```
+
+Great. Now how many weather events are there?
+
+```{r levels weather}
+levels(weather$Events)
+```
+
+
+Wow! So mostly combinations of rain…
+
+Let’s combine a few of these things that seem to represent the same event.
+
+```{r weather events}
+weather$Events <- gsub("Fog , Rain|Fog-Rain", "Fog-Rain", weather$Events)
+weather$Events <- gsub("Rain , Snow|Rain-Snow", "Rain-Snow", 
+    weather$Events)
+weather$Events <- gsub("Rain , Thunderstorm|Rain-Thunderstorm", 
+    "Rain-TS", weather$Events)
+
+weather$Events <- as.factor(weather$Events)
+```
+
+Where else does this dataset need to be cleaned up? Let’s look for any missing values.
+
+```{r summary weather}
+summary(weather)
+```
+
+
+Ok, so we have one NA for “Mean_Temperature_F”, “Max_Gust_Speed_MPH” seems to be represented as a character vector because it has “-” representing NA values, and we have 361 unlabelled Events.
+
+Max Gust Speed should be the easiest one to fix, so we’ll start there.
+
+```{r weather max}
+weather$Max_Gust_Speed_MPH <- gsub("-", 0, weather$Max_Gust_Speed_MPH)
+
+weather$Max_Gust_Speed_MPH <- as.numeric(weather$Max_Gust_Speed_MPH)
+```
+
+
+Great! We changed any absent values for Maximum Gust Speed to 0 MPH and changed the variable type to a number. Uh oh, looks like there are still 185 NA values for Max Gust Speed. That’s a lot to try to replace. I would normally suggest generating a model that could try to predict those values based on other known values, but for now, we’ll just leave it alone.
+
+Since there is only one missing Mean Temperature, it seems the easiest way to fill in the hole is to look up what the average temperature was that day. Note: *I certainly would not recommend this if it were any more than one missing value*
+
+```{r weather ten}
+weather[which(is.na(weather$Mean_Temperature_F)), 1]
+```
+
+
+Ok, so we’re looking for the Mean Temperature on February 14, 2016 in the zipcode 98101 (according to dataset documentation). Looks like the mean temperature that day was 50 degrees F.
+
+Time to substitute in that value.
+
+
+```{r mean weather}
+weather[490, "Mean_Temperature_F"] <- "50"
+```
+
+
+Perfect. Now what to do with the unlabelled “Event” categories. The dataset “ReadMe” file from Pronto! doesn’t include any information about this weather dataset. The only thing I can think to do is refer to the Event as “Other”.
+
+
+```{r E weather}
+weather$Events <- gsub("^$", "Other", weather$Events)
+weather$Events <- as.factor(weather$Events)
+```
+
+Ok, we’re in good shape. Now to do a few quick visualizations.
+
+## Temperature
+
+
+**Minimum**
+
+```{r, echo = FALSE}
+weather %>%
+  ggplot(aes(Date,Min_TemperatureF)) + 
+  geom_line()+
+  theme_bw() +
+  labs(y = "Minimum Temperature (F)")
+
+
+
+```
+
+**Mean**
+
+```{r,echo=FALSE}
+weather %>%
+  ggplot(aes(x=Date,y=as.numeric(Mean_Temperature_F)))+
+  geom_line()+
+  theme_bw()+
+  labs(y="Mean Temperature (F)")
+
+```
+
+**Maximum**
+
+```{r, echo=FALSE}
+weather %>%
+  ggplot(aes(Date, Max_Temperature_F)) +
+  geom_line()+
+  theme_bw() +
+  ylab("Maximum Temperature (F)")
+```
+
+## Events
+
+```{r,echo=FALSE}
+weather %>%
+  group_by(Events) %>%
+  ggplot(aes(Events), group=1) +
+    geom_bar() +
+    ylab("Number of Events")
+```
+
+## Combining Weather and Trip Datasets
+
+Good, so we can now see some parts of the weather data. Let’s combine the weather data with our trip data. Let’s try a `left join` from the `dplyr` package.
+
+```{r}
+# Make a copy of the data frame
+trip_3 <- trip_2
+
+# Change column name in trip_3 to match weather dataset
+trip_3$Date <- trip_3$start_date
+
+# Left join the trip and weather dataframes by date.
+trip_weather <- left_join(trip_3, weather, by = "Date")
+
+  
+```
+
+
+## Mean Temperature vs. Number of Trips
+
+Ok. Now let’s see how the number of trips per day is influenced by weather (mean temperature, rounded to the nearest 5 degrees F)
+
+```{r, echo=FALSE, include=FALSE}
+trip_weather$Mean_Temperature_F <- as.numeric(trip_weather$Mean_Temperature_F)
+
+
+```
+
+```{r,echo=FALSE}
+trip_weather %>%
+  mutate(mean_rounded = 5*round(Mean_Temperature_F/5)) %>%
+  group_by(mean_rounded) %>%
+  summarize(N = n()) %>%
+  ggplot(aes(x = mean_rounded , y = N)) +
+  geom_line() + 
+  theme_bw() + 
+  labs(x = "Temperature (Rounded to Nearest 5 degrees F", y = "Number of Trips")
+```
+
+So, as expected, there are more trips when the weather is mild but not too warm (over 70F) or too cold (below 50F). However, this figure may be influenced by the overall number of days that exhibited each mean temperature. Let’s try to standardize that.
+
+
+```{r, echo = FALSE}
+t1 <- trip_weather %>% 
+  mutate(rounded = 5*round(Mean_Temperature_F/5)) %>%
+  group_by(rounded) %>%
+  summarize(n = n(), Days = n_distinct(Date)) %>% 
+  mutate(Ratio = n/Days)
+
+  ggplot(data = t1, aes(x = rounded , y = Ratio)) +
+  geom_line() + 
+  theme_bw() + 
+  labs(x = "Temperature (Rounded to Nearest 5 degrees F)", y = "Number of Trips/Number of Days at Temperature")
+```
+
+So when we standardize our measurements, correcting for the number of days that actually reached each temperature, we see a steady increase in the number of trips until around 75F where the trend levels off. People are more likely to ride a bike when it’s warm outside.
+
+
+
+
+```{r, echo=FALSE}
+t2 <- trip_weather %>% 
+  mutate(rounded = 0.2*round(Precipitation_In/0.2)) %>%
+  group_by(rounded) %>%
+  summarize(n = n(), Days = n_distinct(Date)) %>% 
+  mutate(Ratio2 = n/Days)
+
+  ggplot(data = t2, aes(x = rounded , y = Ratio2)) +
+  geom_line() + 
+  theme_bw() + 
+  labs(x = "Precipitation (Rounded to Nearest 0.2 Inches)", y = "Number of Trips/Number of Days at Precipitaton Level")
+```
+
+
+## Precipitation vs. Number of Trips
+
+
+If you’ve ever heard of Seattle, you probably hear that it rains all the time there. Let’s see if that has an impact on the number of trips taken in a day.
+
+We’ll start with a figure standardized for number of days at a precipitation level, rounded to the nearest 0.2 inches.
+
+
+
+
+
+Looks like even Seattleites have a limit when it comes to riding a bike in the rain. The more it rained, the fewer trips were taken per day.
+
+#Conclusions
+
+So what did we learn from all of this? In the nearly 2 years since Pronto! opened in Seattle:
+
+236,065 bike trips were taken using this service
+More trips occur in the spring and summer than winter/autumn
+More trips occur during warm/dry weather
+People tend to ride downhill more frequently than uphill
+Pronto! bikes are used for work commutes during the week and more leisurely use on weekends
+Short-Term Pass Holders are more likely to incur extra charges due to surpassing their time limit
+
+
+#Suggestions for Pronto!
+
+Give users bonuses for bringing bikes back to a station on the top of the hill
+Hold discounts in fall/winter
+Find a way to alert short-term users that their time limit will be ending soon, and where the nearest station is to them at that time
+Consider a 3rd membership option: “Commuter”. This may allow users to take bikes between 7-10 AM and 4-7 PM for free, but operate under a different time limit schedule during other times of day.
+As always, I appreciate any and all feedback from my work and appreciate you taking the time to see what I’ve done. Thanks!
 
 ## References
 

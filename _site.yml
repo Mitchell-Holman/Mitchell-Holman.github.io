@@ -1,20 +1,22 @@
-name: "Mitchell-Holman.github.io"
-output_dir: "."
+name: Mitchell-Holman.github.io
+output_dir: '.'
 navbar:
-  title: "Mitchell Holman"
+  title: Mitchell Holman
   left:
-  - text: "Bike Project"
+  - text: Bike Project
     href: Projects.html
-  - text: "Hobbies"
+  - text: Hobbies
     href: hobs.html
-  - text: "Time Series"
+  - text: Time Series
     href: Time.html
+  - text: Presentation
+    href: pres.rmd
   right:
   - icon: fa-github fa-lg
     href: https://github.com/Mitchell-Holman/Mitchell-Holman.github.io
 output:
   html_document:
     theme: yeti
-    
- 
+    lib_dir: site_libs
+    self_contained: no
 

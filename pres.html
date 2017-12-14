@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="MITCH" />
+
+<meta name="date" content="2017-12-14" />
+
+<title>Bears</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Mitchell Holman</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="Projects.html">Bike Project</a>
+</li>
+<li>
+  <a href="hobs.html">Hobbies</a>
+</li>
+<li>
+  <a href="Time.html">Time Series</a>
+</li>
+<li>
+  <a href="pres.rmd">Presentation</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/Mitchell-Holman/Mitchell-Holman.github.io">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Bears</h1>
+<h4 class="author"><em>MITCH</em></h4>
+<h4 class="date"><em>12/14/2017</em></h4>
+
+</div>
+
+
+<div id="question" class="section level2">
+<h2>Question</h2>
+<p>Ranger Bob Berra needs help relocating bears out of Jellystone. He wants to move bears with higher weights but doesn’t want to go and weight every bear. He asked to find a better way to determine the bears weight.</p>
+<p>With this presentation I will demonstrate what I know and learned from the class</p>
+</div>
+<div id="section" class="section level2">
+<h2></h2>
+<pre><code>## Loading required package: carData</code></pre>
+<pre><code>## lattice theme set by effectsTheme()
+## See ?effectsTheme for details.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;car&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:carData&#39;:
+## 
+##     Guyer, UN, Vocab</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ tibble  1.3.4     ✔ dplyr   0.7.4
+## ✔ tidyr   0.7.2     ✔ stringr 1.2.0
+## ✔ purrr   0.2.4     ✔ forcats 0.2.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ✖ dplyr::recode() masks car::recode()
+## ✖ purrr::some()   masks car::some()</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   sex = col_character(),
+##   length = col_double(),
+##   head.l = col_double(),
+##   head.w = col_double(),
+##   neck.g = col_double(),
+##   chest.g = col_double(),
+##   weight = col_integer()
+## )</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##      sex `mean(chest.g)` `mean(neck.g)`
+##    &lt;chr&gt;           &lt;dbl&gt;          &lt;dbl&gt;
+## 1 female        33.23529       18.80882
+## 2   male        37.60606       22.49697</code></pre>
+</div>
+<div id="section-1" class="section level2">
+<h2></h2>
+<pre><code>## [1] &quot;sex&quot;     &quot;length&quot;  &quot;head.l&quot;  &quot;head.w&quot;  &quot;neck.g&quot;  &quot;chest.g&quot; &quot;weight&quot;</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = weight ~ ., data = bears)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -66.995 -15.474  -4.438  13.812 126.953 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -229.6235    26.3046  -8.729 9.95e-14 ***
+## sexmale        1.9170     7.4868   0.256  0.79847    
+## length        -0.1487     0.9020  -0.165  0.86937    
+## head.l        -4.5087     3.8297  -1.177  0.24208    
+## head.w         1.0700     4.1777   0.256  0.79842    
+## neck.g         6.5523     2.0799   3.150  0.00219 ** 
+## chest.g        9.4822     1.1962   7.927 4.82e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 32.27 on 93 degrees of freedom
+## Multiple R-squared:  0.922,  Adjusted R-squared:  0.917 
+## F-statistic: 183.2 on 6 and 93 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = weight ~ ., data = bears)
+## 
+## Coefficients:
+## (Intercept)      sexmale       length       head.l       head.w  
+##   -229.6235       1.9170      -0.1487      -4.5087       1.0700  
+##      neck.g      chest.g  
+##      6.5523       9.4822</code></pre>
+</div>
+<div id="section-2" class="section level2">
+<h2></h2>
+<p><img src="pres_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="section-3" class="section level2">
+<h2></h2>
+<p><img src="pres_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="section-4" class="section level2">
+<h2></h2>
+<p><img src="pres_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="what-i-have-learned" class="section level2">
+<h2>What I have learned</h2>
+<p>I can make a website using R studio and git hub.</p>
+<p>First</p>
+<p>open and create a text file save it _site.yml</p>
+<p>Second</p>
+<p>name the site from your project</p>
+<p>name: “Mitchell-Holman.github.io” output_dir: “.”</p>
+</div>
+<div id="section-5" class="section level2">
+<h2></h2>
+<p>Third</p>
+<p>create navbar navbar:</p>
+<p>title: “Mitchell Holman” left: - text: “Bike Project” href: Projects.html - text: “Hobbies” href: hobs.html - text: “Time Series” href: Time.html right: - icon: fa-github fa-lg href: <a href="https://github.com/Mitchell-Holman/Mitchell-Holman.github.io" class="uri">https://github.com/Mitchell-Holman/Mitchell-Holman.github.io</a> output: html_document: theme: yeti</p>
+<p>now build your site</p>
+</div>
+<div id="section-6" class="section level2">
+<h2></h2>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

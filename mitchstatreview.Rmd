@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "MITCH"
+date: "11/30/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+me <- 48
+me2 <- 43
+
+qnorm(10.6333,sd = 3, lower.tail = TRUE)
+qnorm(2)- qnorm(1)
+1-pt(1.0,5)
+pt(1,5,lower.tail = F)
+
+pnorm(1)- .5
+
+rnorm(1:886, 0,1 )
+```
+
+```{r}
+r <-pnorm(1:100,48,5)
+plot(r)
+
+f <- rnorm(100,0,10)
+
+
+plot.ts(f)
+6
+```
+```{r}
+
+```
+
+
+```{r}
+dnorm(1:108, mean =1.54, sd=1.98)
+
+
+```
+

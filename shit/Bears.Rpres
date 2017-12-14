@@ -1,0 +1,139 @@
+Bears
+========================================================
+author: 
+date: 
+autosize: true
+
+Question
+========================================================
+
+Ranger Bob Berra needs help relocating bears out of Jellystone. He wants to move bears with higher weights but doesn't want to go and weight every bear. He asked to find a better way to determine the bears weight.
+
+With this presentation I will demonstrate what I know and learned from the class
+
+
+========================================================
+
+
+
+
+
+```{r bears}
+library(DT)
+library(effects)
+library(car)
+library(readr)
+library(ggplot2)
+library(tidyverse)
+bears <- read_csv("/home/students/holmanma/Des_Models/Models/bears.csv")
+mb <- subset(bears, sex=="male")
+fb <- subset(bears, sex=="female")
+
+bears %>%
+  group_by(sex)%>%
+  summarise(mean (chest.g), mean(neck.g))
+
+
+```
+
+
+========================================================
+
+```{r}
+summary(mb)
+
+```
+
+
+========================================================
+
+
+```{r}
+summary(fb)
+
+```
+
+========================================================
+
+
+```{r, echo=FALSE}
+names(bears)
+modfo <- lm(weight ~ . , data = bears)
+summary(modfo)
+modfo
+```
+
+
+========================================================
+
+
+```{r}
+ggplot(data = bears, aes(x = weight, y =  neck.g )) + 
+  geom_point() + 
+  theme_bw() + 
+  stat_smooth(method = "lm", formula = y ~ poly(sqrt(x), 1))
+```
+
+========================================================
+
+```{r}
+ggplot(data = bears, aes(x = weight, y = chest.g  )) + 
+  geom_point() + 
+  theme_bw() + 
+  stat_smooth(method = "lm", formula = y ~ poly(sqrt(x), 4)) 
+```
+
+
+========================================================
+
+
+```{r}
+ggplot(data = bears, aes(x = weight, y =  chest.g )) + 
+  geom_point() + 
+  theme_bw() + 
+  stat_smooth(method = "lm", formula = y ~ poly(x, 1))
+```
+
+
+What I have learned
+========================================================
+
+I can make a website using R studio and git hub.
+
+First
+
+open and create a text file save it _site.yml
+
+Second 
+
+name the site from your project
+
+ name: "Mitchell-Holman.github.io"
+output_dir: "."
+
+========================================================
+
+
+Third 
+
+create navbar
+navbar:
+
+  title: "Mitchell Holman"
+  left:
+  - text: "Bike Project"
+    href: Projects.html
+  - text: "Hobbies"
+    href: hobs.html
+  - text: "Time Series"
+    href: Time.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/Mitchell-Holman/Mitchell-Holman.github.io
+output:
+  html_document:
+    theme: yeti
+    
+now build your site
+
+========================================================
